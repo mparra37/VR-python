@@ -1,0 +1,101 @@
+<!doctype html><html lang='es'><head><meta charset='utf-8'><title>Manual · Arma el programa · TC1038</title><style>
+@page { size: letter; margin: 13mm; }
+* { box-sizing: border-box; }
+body { font-family: "Segoe UI", Arial, sans-serif; color: #15171a; font-size: 10.5pt; line-height: 1.4; margin: 0; }
+h1 { font-size: 21pt; margin: 0 0 1mm; color: #0B1F3A; }
+h2 { font-size: 13pt; margin: 5mm 0 2mm; color: #2F6FBF; }
+h3 { font-size: 11.5pt; margin: 0 0 1.5mm; color: #0B1F3A; }
+p { margin: 0 0 2mm; }
+ol, ul { margin: 0 0 2mm; padding-left: 6mm; }
+li { margin-bottom: 1mm; }
+.marca { display: inline-block; border: 1.5px solid #2F6FBF; color: #2F6FBF; border-radius: 4px; padding: 0 2mm; font-size: 8.5pt; font-weight: 600; letter-spacing: .5px; margin-bottom: 2mm; }
+.sub { color: #5b6270; margin-bottom: 4mm; }
+.aviso { border-left: 4px solid #2F6FBF; background: #EEF3FA; padding: 2.5mm 4mm; margin: 2mm 0 4mm; }
+.mono, pre, code { font-family: Consolas, "Courier New", monospace; }
+pre { margin: 0; white-space: pre; font-size: 9.6pt; line-height: 1.35; }
+.rejilla { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+.tarjeta { border: 1.2px solid #c9ced6; border-radius: 6px; padding: 3mm 3.5mm; break-inside: avoid; }
+.tarjeta .num { color: #2F6FBF; font-weight: 700; }
+.pasos { counter-reset: paso; list-style: none; padding: 0; margin: 1mm 0 2mm; }
+.pasos li { counter-increment: paso; font-family: Consolas, monospace; font-size: 9.6pt; white-space: pre; margin: 0 0 .6mm; }
+.pasos li::before { content: counter(paso) "  "; color: #8B95A7; }
+.consola { background: #0B1F3A; color: #E6EDF7; border-radius: 4px; padding: 2mm 3mm; }
+.etq { font-size: 8.5pt; font-weight: 600; color: #5b6270; letter-spacing: .4px; margin-top: 1.5mm; }
+.tema { color: #8B95A7; font-size: 8.5pt; }
+table { border-collapse: collapse; width: 100%; margin: 1mm 0 3mm; }
+th, td { border: 1px solid #c9ced6; padding: 1.4mm 2.2mm; text-align: left; vertical-align: top; }
+th { background: #eef1f5; }
+.tres { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; }
+.paso-grande { border: 1.2px solid #c9ced6; border-radius: 6px; padding: 3mm; }
+.paso-grande b { display: block; color: #2F6FBF; font-size: 15pt; }
+.pie { color: #5b6270; font-size: 8.5pt; margin-top: 3mm; }
+</style></head><body>
+<div class="marca">ENLACE VR · PYTHON · TC1038 · MANUAL DEL EQUIPO</div>
+<h1>Arma el programa</h1>
+<div class="aviso">El Operador les dice el <b>número de programa</b> y les lee las líneas de código que ve
+(con sangría o sin sangría). Ustedes deciden en qué <b>número de línea</b> va cada una, siguiendo el
+pseudocódigo. Cuidado: hay <b>líneas trampa</b> que se parecen pero no van. Sangría = 4 espacios.</div>
+<div class="rejilla"><div class="tarjeta">
+<h3><span class="num">Programa 1</span> · Suma de 1 a n</h3>
+<p>Pide n y muestra la suma 1 + 2 + … + n usando un ciclo for.</p>
+<div class="etq">PSEUDOCÓDIGO (en este orden)</div>
+<ol class="pasos"><li>Pide n (entero).</li><li>Empieza la suma en 0.</li><li>Para cada i de 1 a n (incluido n):</li><li>   suma i a la suma.</li><li>Muestra la suma (fuera del ciclo).</li></ol>
+<div class="etq">EJEMPLO DE EJECUCIÓN</div>
+<pre class="consola">n: 5
+Suma: 15</pre>
+</div><div class="tarjeta">
+<h3><span class="num">Programa 2</span> · Cuenta regresiva</h3>
+<p>Pide un número y cuenta hacia atrás hasta 1 con un ciclo while. Al final muestra ¡Despegue!</p>
+<div class="etq">PSEUDOCÓDIGO (en este orden)</div>
+<ol class="pasos"><li>Pide el número n (entero).</li><li>Mientras n sea mayor que 0:</li><li>   muestra n.</li><li>   réstale 1 a n.</li><li>Muestra ¡Despegue!</li></ol>
+<div class="etq">EJEMPLO DE EJECUCIÓN</div>
+<pre class="consola">Desde: 3
+3
+2
+1
+¡Despegue!</pre>
+</div><div class="tarjeta">
+<h3><span class="num">Programa 3</span> · Promedio del grupo</h3>
+<p>Calcula el promedio de una lista de promedios sin usar sum().</p>
+<div class="etq">PSEUDOCÓDIGO (en este orden)</div>
+<ol class="pasos"><li>Crea la lista prom con 92.5, 64.5 y 84.0.</li><li>Empieza el total en 0.</li><li>Para cada p en prom:</li><li>   súmale p al total.</li><li>Muestra total entre el tamaño de la lista, con 2 decimales.</li></ol>
+<div class="etq">EJEMPLO DE EJECUCIÓN</div>
+<pre class="consola">80.33</pre>
+</div><div class="tarjeta">
+<h3><span class="num">Programa 4</span> · Buscar alumno</h3>
+<p>La función buscar(nombres, x) regresa la posición de x en la lista, o -1 si no está.</p>
+<div class="etq">PSEUDOCÓDIGO (en este orden)</div>
+<ol class="pasos"><li>Define la función buscar con nombres y x:</li><li>   para cada posición i de la lista:</li><li>      si el nombre en i es x:</li><li>         regresa i.</li><li>   después del ciclo, regresa -1.</li><li>Muestra buscar de la lista Ana, Javier, Omar con Omar.</li></ol>
+<div class="etq">EJEMPLO DE EJECUCIÓN</div>
+<pre class="consola">2</pre>
+</div><div class="tarjeta">
+<h3><span class="num">Programa 5</span> · Lista de aprobados</h3>
+<p>Con dos listas paralelas, arma una lista nueva con los nombres de quienes tienen 70 o más.</p>
+<div class="etq">PSEUDOCÓDIGO (en este orden)</div>
+<ol class="pasos"><li>Crea la lista nombres: Ana, Javier, Omar.</li><li>Crea la lista prom: 92.5, 64.5, 84.0.</li><li>Empieza aprobados como lista vacía.</li><li>Para cada posición i:</li><li>   si el promedio en i es 70 o más:</li><li>      agrega el NOMBRE en i a aprobados.</li><li>Muestra aprobados y cuántos son.</li></ol>
+<div class="etq">EJEMPLO DE EJECUCIÓN</div>
+<pre class="consola">[&#x27;Ana&#x27;, &#x27;Omar&#x27;] 2</pre>
+</div><div class="tarjeta">
+<h3><span class="num">Programa 6</span> · Mejor promedio</h3>
+<p>Encuentra al alumno con el promedio más alto sin usar max(). Si hay empate, gana el primero.</p>
+<div class="etq">PSEUDOCÓDIGO (en este orden)</div>
+<ol class="pasos"><li>Crea la lista nombres: Ana, Javier, Omar.</li><li>Crea la lista prom: 92.5, 64.5, 84.0.</li><li>El mejor empieza en la posición 0.</li><li>Para cada posición i desde la 1:</li><li>   si el promedio en i es MAYOR que el del mejor:</li><li>      el mejor ahora es i.</li><li>Muestra el nombre y el promedio del mejor.</li></ol>
+<div class="etq">EJEMPLO DE EJECUCIÓN</div>
+<pre class="consola">Ana con 92.5</pre>
+</div><div class="tarjeta">
+<h3><span class="num">Programa 7</span> · Eliminar alumno</h3>
+<p>Quita a Javier de las dos listas paralelas para que sigan alineadas.</p>
+<div class="etq">PSEUDOCÓDIGO (en este orden)</div>
+<ol class="pasos"><li>Crea la lista nombres: Ana, Javier, Omar.</li><li>Crea la lista prom: 92.5, 64.5, 84.0.</li><li>Busca la posición de Javier en nombres.</li><li>Quita esa posición de nombres.</li><li>Quita la MISMA posición de prom.</li><li>Muestra las dos listas.</li></ol>
+<div class="etq">EJEMPLO DE EJECUCIÓN</div>
+<pre class="consola">[&#x27;Ana&#x27;, &#x27;Omar&#x27;] [92.5, 84.0]</pre>
+</div><div class="tarjeta">
+<h3><span class="num">Programa 8</span> · Lugar en el grupo</h3>
+<p>El lugar de cada alumno es 1 más cuántos tienen un promedio mayor. Sin ordenar las listas (ciclo anidado).</p>
+<div class="etq">PSEUDOCÓDIGO (en este orden)</div>
+<ol class="pasos"><li>Crea la lista nombres: Ana, Javier, Omar.</li><li>Crea la lista prom: 92.5, 64.5, 84.0.</li><li>Para cada alumno i:</li><li>   su lugar empieza en 1.</li><li>   para cada alumno j:</li><li>      si el promedio de j es mayor que el de i:</li><li>         súmale 1 al lugar.</li><li>   muestra el nombre de i y su lugar.</li></ol>
+<div class="etq">EJEMPLO DE EJECUCIÓN</div>
+<pre class="consola">Ana - lugar 1
+Javier - lugar 3
+Omar - lugar 2</pre>
+</div></div></body></html>

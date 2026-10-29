@@ -1,0 +1,93 @@
+<!doctype html><html lang='es'><head><meta charset='utf-8'><title>Manual · Intérprete humano · TC1038</title><style>
+@page { size: letter; margin: 13mm; }
+* { box-sizing: border-box; }
+body { font-family: "Segoe UI", Arial, sans-serif; color: #15171a; font-size: 10.5pt; line-height: 1.4; margin: 0; }
+h1 { font-size: 21pt; margin: 0 0 1mm; color: #0B1F3A; }
+h2 { font-size: 13pt; margin: 5mm 0 2mm; color: #2F6FBF; }
+h3 { font-size: 11.5pt; margin: 0 0 1.5mm; color: #0B1F3A; }
+p { margin: 0 0 2mm; }
+ol, ul { margin: 0 0 2mm; padding-left: 6mm; }
+li { margin-bottom: 1mm; }
+.marca { display: inline-block; border: 1.5px solid #2F6FBF; color: #2F6FBF; border-radius: 4px; padding: 0 2mm; font-size: 8.5pt; font-weight: 600; letter-spacing: .5px; margin-bottom: 2mm; }
+.sub { color: #5b6270; margin-bottom: 4mm; }
+.aviso { border-left: 4px solid #2F6FBF; background: #EEF3FA; padding: 2.5mm 4mm; margin: 2mm 0 4mm; }
+.mono, pre, code { font-family: Consolas, "Courier New", monospace; }
+pre { margin: 0; white-space: pre; font-size: 9.6pt; line-height: 1.35; }
+.rejilla { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+.tarjeta { border: 1.2px solid #c9ced6; border-radius: 6px; padding: 3mm 3.5mm; break-inside: avoid; }
+.tarjeta .num { color: #2F6FBF; font-weight: 700; }
+.pasos { counter-reset: paso; list-style: none; padding: 0; margin: 1mm 0 2mm; }
+.pasos li { counter-increment: paso; font-family: Consolas, monospace; font-size: 9.6pt; white-space: pre; margin: 0 0 .6mm; }
+.pasos li::before { content: counter(paso) "  "; color: #8B95A7; }
+.consola { background: #0B1F3A; color: #E6EDF7; border-radius: 4px; padding: 2mm 3mm; }
+.etq { font-size: 8.5pt; font-weight: 600; color: #5b6270; letter-spacing: .4px; margin-top: 1.5mm; }
+.tema { color: #8B95A7; font-size: 8.5pt; }
+table { border-collapse: collapse; width: 100%; margin: 1mm 0 3mm; }
+th, td { border: 1px solid #c9ced6; padding: 1.4mm 2.2mm; text-align: left; vertical-align: top; }
+th { background: #eef1f5; }
+.tres { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; }
+.paso-grande { border: 1.2px solid #c9ced6; border-radius: 6px; padding: 3mm; }
+.paso-grande b { display: block; color: #2F6FBF; font-size: 15pt; }
+.pie { color: #5b6270; font-size: 8.5pt; margin-top: 3mm; }
+</style></head><body>
+<div class="marca">ENLACE VR · PYTHON · TC1038 · MANUAL DEL EQUIPO</div>
+<h1>Intérprete humano</h1>
+<div class="aviso">El Operador les lee una instrucción como <span class="mono">print(f3(600))</span>. Busquen la
+función, síganla a mano con esos valores y díganle <b>exactamente</b> qué imprime Python
+(<span class="mono">540.0</span> no es lo mismo que <span class="mono">540</span>). El Operador dispara a esa respuesta.</div>
+<table><tr><th>Recuerden</th></tr><tr><td><span class="mono">range(1, n)</span> llega hasta n − 1 ·
+<span class="mono">lista[-1]</span> es el último · <span class="mono">return</span> dentro de un ciclo termina la función ·
+<span class="mono">pop(i)</span> quita la posición i y recorre las demás</td></tr></table>
+<div class="rejilla"><div class="tarjeta"><h3><span class="num">Función 1</span> <span class="tema">· range y acumulador</span></h3>
+<pre>def f1(n):
+    total = 0
+    for i in range(1, n):
+        total += i
+    return total</pre></div><div class="tarjeta"><h3><span class="num">Función 2</span> <span class="tema">· while</span></h3>
+<pre>def f2(n):
+    while n &lt; 20:
+        n = n * 3
+    return n</pre></div><div class="tarjeta"><h3><span class="num">Función 3</span> <span class="tema">· índices y nums[-1]</span></h3>
+<pre>def f3(nums):
+    return nums[1] + nums[-1]</pre></div><div class="tarjeta"><h3><span class="num">Función 4</span> <span class="tema">· contar con if</span></h3>
+<pre>def f4(prom):
+    cuenta = 0
+    for p in prom:
+        if p &gt;= 70:
+            cuenta += 1
+    return cuenta</pre></div><div class="tarjeta"><h3><span class="num">Función 5</span> <span class="tema">· buscar</span></h3>
+<pre>def f5(nombres, x):
+    for i in range(len(nombres)):
+        if nombres[i] == x:
+            return i
+    return -1</pre></div><div class="tarjeta"><h3><span class="num">Función 6</span> <span class="tema">· el mayor sin max()</span></h3>
+<pre>def f6(prom):
+    mejor = 0
+    for i in range(len(prom)):
+        if prom[i] &gt; prom[mejor]:
+            mejor = i
+    return mejor</pre></div><div class="tarjeta"><h3><span class="num">Función 7</span> <span class="tema">· ciclo anidado</span></h3>
+<pre>def f7(a, b):
+    cuenta = 0
+    for i in range(a):
+        for j in range(b):
+            cuenta += 1
+    return cuenta</pre></div><div class="tarjeta"><h3><span class="num">Función 8</span> <span class="tema">· lugar en el grupo</span></h3>
+<pre>def f8(prom, i):
+    lugar = 1
+    for p in prom:
+        if p &gt; prom[i]:
+            lugar += 1
+    return lugar</pre></div><div class="tarjeta"><h3><span class="num">Función 9</span> <span class="tema">· listas paralelas</span></h3>
+<pre>def f9(nombres, prom, x):
+    pos = nombres.index(x)
+    nombres.pop(pos)
+    prom.pop(pos)
+    return prom</pre></div><div class="tarjeta"><h3><span class="num">Función 10</span> <span class="tema">· validar con while</span></h3>
+<pre>def f10(entradas):
+    veces = 0
+    cal = -1
+    while cal &lt; 0 or cal &gt; 100:
+        cal = entradas[veces]
+        veces += 1
+    return veces</pre></div></div></body></html>

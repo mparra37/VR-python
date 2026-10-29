@@ -1,0 +1,54 @@
+<!doctype html><html lang='es'><head><meta charset='utf-8'><title>Instructivo · Arma el programa</title><style>
+@page { size: letter; margin: 13mm; }
+* { box-sizing: border-box; }
+body { font-family: "Segoe UI", Arial, sans-serif; color: #15171a; font-size: 10.5pt; line-height: 1.4; margin: 0; }
+h1 { font-size: 21pt; margin: 0 0 1mm; color: #0B1F3A; }
+h2 { font-size: 13pt; margin: 5mm 0 2mm; color: #2F6FBF; }
+h3 { font-size: 11.5pt; margin: 0 0 1.5mm; color: #0B1F3A; }
+p { margin: 0 0 2mm; }
+ol, ul { margin: 0 0 2mm; padding-left: 6mm; }
+li { margin-bottom: 1mm; }
+.marca { display: inline-block; border: 1.5px solid #2F6FBF; color: #2F6FBF; border-radius: 4px; padding: 0 2mm; font-size: 8.5pt; font-weight: 600; letter-spacing: .5px; margin-bottom: 2mm; }
+.sub { color: #5b6270; margin-bottom: 4mm; }
+.aviso { border-left: 4px solid #2F6FBF; background: #EEF3FA; padding: 2.5mm 4mm; margin: 2mm 0 4mm; }
+.mono, pre, code { font-family: Consolas, "Courier New", monospace; }
+pre { margin: 0; white-space: pre; font-size: 9.6pt; line-height: 1.35; }
+.rejilla { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+.tarjeta { border: 1.2px solid #c9ced6; border-radius: 6px; padding: 3mm 3.5mm; break-inside: avoid; }
+.tarjeta .num { color: #2F6FBF; font-weight: 700; }
+.pasos { counter-reset: paso; list-style: none; padding: 0; margin: 1mm 0 2mm; }
+.pasos li { counter-increment: paso; font-family: Consolas, monospace; font-size: 9.6pt; white-space: pre; margin: 0 0 .6mm; }
+.pasos li::before { content: counter(paso) "  "; color: #8B95A7; }
+.consola { background: #0B1F3A; color: #E6EDF7; border-radius: 4px; padding: 2mm 3mm; }
+.etq { font-size: 8.5pt; font-weight: 600; color: #5b6270; letter-spacing: .4px; margin-top: 1.5mm; }
+.tema { color: #8B95A7; font-size: 8.5pt; }
+table { border-collapse: collapse; width: 100%; margin: 1mm 0 3mm; }
+th, td { border: 1px solid #c9ced6; padding: 1.4mm 2.2mm; text-align: left; vertical-align: top; }
+th { background: #eef1f5; }
+.tres { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; }
+.paso-grande { border: 1.2px solid #c9ced6; border-radius: 6px; padding: 3mm; }
+.paso-grande b { display: block; color: #2F6FBF; font-size: 15pt; }
+.pie { color: #5b6270; font-size: 8.5pt; margin-top: 3mm; }
+</style></head><body>
+<div class="marca">ENLACE VR · PYTHON · INSTRUCTIVO DEL PROFESOR</div>
+<h1>Arma el programa</h1>
+<p class="sub">TC1037 y TC1038 · Temas: Orden de un programa, sangría, EPS, if/else, funciones (TC1037); ciclos y listas (TC1038).</p>
+<h2>Cómo se juega</h2>
+<div class="tres"><div class='paso-grande'><b>1</b>El Operador dice el <b>número de programa</b>, voltea, toma una línea de código y la <b>lee en voz alta</b> (con o sin sangría).</div><div class='paso-grande'><b>2</b>El equipo busca el programa en su manual, sigue el pseudocódigo y dice en qué <b>número de línea</b> va.</div><div class='paso-grande'><b>3</b>El Operador apunta a ese número. Si es la línea correcta, se coloca (+1). Las líneas trampa no van en ningún lado.</div></div>
+<h2>Antes de empezar (5 min)</h2>
+<ol>
+<li>En cada visor abre el sitio y en el menú elige el <b>equipo</b> (1 a 8) y el <b>curso</b> (TC1037 o TC1038).</li>
+<li>Imprime para cada equipo el <b>manual de su curso</b> y la hoja de puntajes (página Cómo empezar).</li>
+<li>Equipos de 4: uno con el visor (Operador) y tres con el manual. Cambian de Operador en cada ronda.</li>
+</ol>
+<h2>Reglas</h2>
+<table>
+<tr><td><b>Ronda</b></td><td>5 minutos (o Práctica, sin tiempo). Primero una práctica.</td></tr>
+<tr><td><b>Puntos</b></td><td>+1 por acierto. Al final el visor da el puntaje y un <b>código</b>: el equipo anota los dos en su hoja; tú los verificas en el Marcador del sitio.</td></tr>
+<tr><td><b>¡Enlace caído!</b></td><td>Si se equivocan: 5 segundos sin hablar.</td></tr>
+<tr><td><b>Seguridad</b></td><td>Se juega sentado; correa del control en la muñeca; el visor se pasa con las dos manos.</td></tr>
+</table>
+<h2>Al terminar (5 min)</h2>
+<p>Pregunta: <i>"¿Qué línea o qué función les costó más y por qué?"</i> Pídeles que expliquen un error que cometieron:
+ahí está el aprendizaje. Si vas a medir, aplica el test de antes y después y la encuesta MEEGA+.</p>
+<p class="pie">Enlace VR · Python · Uno ve. El equipo sabe.</p></body></html>

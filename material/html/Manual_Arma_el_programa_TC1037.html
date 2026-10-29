@@ -1,0 +1,103 @@
+<!doctype html><html lang='es'><head><meta charset='utf-8'><title>Manual · Arma el programa · TC1037</title><style>
+@page { size: letter; margin: 13mm; }
+* { box-sizing: border-box; }
+body { font-family: "Segoe UI", Arial, sans-serif; color: #15171a; font-size: 10.5pt; line-height: 1.4; margin: 0; }
+h1 { font-size: 21pt; margin: 0 0 1mm; color: #0B1F3A; }
+h2 { font-size: 13pt; margin: 5mm 0 2mm; color: #2F6FBF; }
+h3 { font-size: 11.5pt; margin: 0 0 1.5mm; color: #0B1F3A; }
+p { margin: 0 0 2mm; }
+ol, ul { margin: 0 0 2mm; padding-left: 6mm; }
+li { margin-bottom: 1mm; }
+.marca { display: inline-block; border: 1.5px solid #2F6FBF; color: #2F6FBF; border-radius: 4px; padding: 0 2mm; font-size: 8.5pt; font-weight: 600; letter-spacing: .5px; margin-bottom: 2mm; }
+.sub { color: #5b6270; margin-bottom: 4mm; }
+.aviso { border-left: 4px solid #2F6FBF; background: #EEF3FA; padding: 2.5mm 4mm; margin: 2mm 0 4mm; }
+.mono, pre, code { font-family: Consolas, "Courier New", monospace; }
+pre { margin: 0; white-space: pre; font-size: 9.6pt; line-height: 1.35; }
+.rejilla { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+.tarjeta { border: 1.2px solid #c9ced6; border-radius: 6px; padding: 3mm 3.5mm; break-inside: avoid; }
+.tarjeta .num { color: #2F6FBF; font-weight: 700; }
+.pasos { counter-reset: paso; list-style: none; padding: 0; margin: 1mm 0 2mm; }
+.pasos li { counter-increment: paso; font-family: Consolas, monospace; font-size: 9.6pt; white-space: pre; margin: 0 0 .6mm; }
+.pasos li::before { content: counter(paso) "  "; color: #8B95A7; }
+.consola { background: #0B1F3A; color: #E6EDF7; border-radius: 4px; padding: 2mm 3mm; }
+.etq { font-size: 8.5pt; font-weight: 600; color: #5b6270; letter-spacing: .4px; margin-top: 1.5mm; }
+.tema { color: #8B95A7; font-size: 8.5pt; }
+table { border-collapse: collapse; width: 100%; margin: 1mm 0 3mm; }
+th, td { border: 1px solid #c9ced6; padding: 1.4mm 2.2mm; text-align: left; vertical-align: top; }
+th { background: #eef1f5; }
+.tres { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; }
+.paso-grande { border: 1.2px solid #c9ced6; border-radius: 6px; padding: 3mm; }
+.paso-grande b { display: block; color: #2F6FBF; font-size: 15pt; }
+.pie { color: #5b6270; font-size: 8.5pt; margin-top: 3mm; }
+</style></head><body>
+<div class="marca">ENLACE VR · PYTHON · TC1037 · MANUAL DEL EQUIPO</div>
+<h1>Arma el programa</h1>
+<div class="aviso">El Operador les dice el <b>número de programa</b> y les lee las líneas de código que ve
+(con sangría o sin sangría). Ustedes deciden en qué <b>número de línea</b> va cada una, siguiendo el
+pseudocódigo. Cuidado: hay <b>líneas trampa</b> que se parecen pero no van. Sangría = 4 espacios.</div>
+<div class="rejilla"><div class="tarjeta">
+<h3><span class="num">Programa 1</span> · Área de un rectángulo</h3>
+<p>Pide la base y la altura de un rectángulo y muestra su área.</p>
+<div class="etq">PSEUDOCÓDIGO (en este orden)</div>
+<ol class="pasos"><li>Pide la base (decimal).</li><li>Pide la altura (decimal).</li><li>Calcula el área: base por altura.</li><li>Muestra el área.</li></ol>
+<div class="etq">EJEMPLO DE EJECUCIÓN</div>
+<pre class="consola">Base: 4
+Altura: 2.5
+Área: 10.0</pre>
+</div><div class="tarjeta">
+<h3><span class="num">Programa 2</span> · Minutos a horas</h3>
+<p>Pide un total de minutos y lo muestra en horas y minutos.</p>
+<div class="etq">PSEUDOCÓDIGO (en este orden)</div>
+<ol class="pasos"><li>Pide el total de minutos (entero).</li><li>Las horas son el total dividido entre 60, sin decimales.</li><li>Los minutos que sobran son el residuo entre 60.</li><li>Muestra horas y minutos.</li></ol>
+<div class="etq">EJEMPLO DE EJECUCIÓN</div>
+<pre class="consola">Minutos: 135
+2 h 15 min</pre>
+</div><div class="tarjeta">
+<h3><span class="num">Programa 3</span> · Mesas para el salón</h3>
+<p>En cada mesa caben 4 alumnos. Pide cuántos alumnos hay y muestra cuántas mesas se necesitan.</p>
+<div class="etq">PSEUDOCÓDIGO (en este orden)</div>
+<ol class="pasos"><li>Usa la biblioteca de matemáticas.</li><li>Pide el número de alumnos (entero).</li><li>Mesas: alumnos entre 4, redondeado hacia ARRIBA.</li><li>Muestra las mesas.</li></ol>
+<div class="etq">EJEMPLO DE EJECUCIÓN</div>
+<pre class="consola">Alumnos: 25
+Mesas: 7</pre>
+</div><div class="tarjeta">
+<h3><span class="num">Programa 4</span> · Descuento en la tienda</h3>
+<p>Si la compra es de $500 o más, tiene 10% de descuento. Muestra el total a pagar.</p>
+<div class="etq">PSEUDOCÓDIGO (en este orden)</div>
+<ol class="pasos"><li>Pide el total de la compra (decimal).</li><li>Si el total es 500 o más:</li><li>   el total ahora es el 90% del total.</li><li>Muestra el total a pagar (fuera del si).</li></ol>
+<div class="etq">EJEMPLO DE EJECUCIÓN</div>
+<pre class="consola">Total de la compra: 600
+Total a pagar: 540.0</pre>
+</div><div class="tarjeta">
+<h3><span class="num">Programa 5</span> · Par o impar</h3>
+<p>Pide un número entero y dice si es par o impar.</p>
+<div class="etq">PSEUDOCÓDIGO (en este orden)</div>
+<ol class="pasos"><li>Pide un número entero n.</li><li>Si el residuo de n entre 2 es 0:</li><li>   muestra Par.</li><li>Si no:</li><li>   muestra Impar.</li></ol>
+<div class="etq">EJEMPLO DE EJECUCIÓN</div>
+<pre class="consola">Número: 7
+Impar</pre>
+</div><div class="tarjeta">
+<h3><span class="num">Programa 6</span> · Promedio y aprobado</h3>
+<p>La función promedio(c1, c2, c3) regresa el promedio de tres calificaciones. Se aprueba con 70 o más.</p>
+<div class="etq">PSEUDOCÓDIGO (en este orden)</div>
+<ol class="pasos"><li>Define la función promedio con c1, c2 y c3:</li><li>   regresa la suma de las tres entre 3.</li><li>Guarda en p el promedio de 80, 90 y 70.</li><li>Muestra el promedio.</li><li>Si p es 70 o más:</li><li>   muestra Aprobado.</li><li>Si no:</li><li>   muestra Reprobado.</li></ol>
+<div class="etq">EJEMPLO DE EJECUCIÓN</div>
+<pre class="consola">Promedio: 80.0
+Aprobado</pre>
+</div><div class="tarjeta">
+<h3><span class="num">Programa 7</span> · Compra válida</h3>
+<p>Pide el total. Si es negativo, avisa del error. Si es 500 o más, cobra con 10% de descuento. Si no, cobra completo.</p>
+<div class="etq">PSEUDOCÓDIGO (en este orden)</div>
+<ol class="pasos"><li>Pide el total (decimal).</li><li>Si el total es menor que 0:</li><li>   muestra el error.</li><li>Si no, pero si es 500 o más:</li><li>   muestra el total con 10% de descuento.</li><li>Si no:</li><li>   muestra el total completo.</li></ol>
+<div class="etq">EJEMPLO DE EJECUCIÓN</div>
+<pre class="consola">Total: 300
+Pagas: 300.0</pre>
+</div><div class="tarjeta">
+<h3><span class="num">Programa 8</span> · Estacionamiento</h3>
+<p>La primera hora cuesta $20 y cada hora extra $15. La función tarifa(horas) regresa cuánto se paga.</p>
+<div class="etq">PSEUDOCÓDIGO (en este orden)</div>
+<ol class="pasos"><li>Define la función tarifa con horas:</li><li>   si las horas son 1 o menos:</li><li>      regresa 20.</li><li>   regresa 20 más 15 por cada hora extra.</li><li>Pide las horas (entero).</li><li>Muestra lo que se paga.</li></ol>
+<div class="etq">EJEMPLO DE EJECUCIÓN</div>
+<pre class="consola">Horas: 3
+Pagas: 50</pre>
+</div></div></body></html>
