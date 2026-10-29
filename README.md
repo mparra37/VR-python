@@ -10,6 +10,7 @@ talking. Built on the same engine as [Enlace VR](https://github.com/mparra37/ITC
 | Arma el programa (Parsons puzzle) | TC1037, TC1038 | Shuffled code lines with distractors, numbered editor rows | Pseudocode and sample run |
 | Intérprete humano (code tracing) | TC1037, TC1038 | `print(f3(600))` and 4 answer doors | Source of 10 numbered functions |
 | El archivero (parallel lists) | TC1038 | `nombres` and `prom` as boxes that shift on delete/append | Grade-book functions |
+| La máquina de funciones (calls, return vs print) | TC1037 | The calling program; the function as a machine with one slot per parameter; value cubes | Source of 14 functions; they map arguments to parameters, then say what it returns and what is printed |
 | Calculadora humana (step-by-step evaluation) | TC1037, TC1038 | An expression on a board and a keypad | Precedence table; they pick the next operator and compute it by hand |
 
 All content lives in `generador/bancos.py`. `python generador/generar.py` executes every program and

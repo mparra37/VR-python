@@ -18,12 +18,13 @@ import io
 import json
 import math
 import random
+import re
 import pathlib
 import subprocess
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from bancos import ARCHIVERO, DEL_TEST, DEL_TEST_LLAMADAS, EJEMPLO_MANUAL, EXPRESIONES_FIJAS, FUNCIONES, PLANTILLAS, PROGRAMAS  # noqa: E402
+from bancos import ARCHIVERO, DEL_TEST, DEL_TEST_LLAMADAS, EJEMPLO_MANUAL, EXPRESIONES_FIJAS, FUNCIONES, LLAMADAS, MAQUINAS, PLANTILLAS, PROGRAMAS  # noqa: E402
 
 RAIZ = pathlib.Path(__file__).resolve().parent.parent
 MATERIAL = RAIZ / "material"
@@ -275,6 +276,149 @@ def generar_expresiones(por_nivel=30, semilla=2026):
     return lista
 
 
+# ---------- La máquina de funciones ----------
+
+def correr_registrando(fuentes, programa):
+    """Corre el programa con las funciones de las máquinas y registra cada llamada, en el orden en que
+    Python las hace: qué recibió, qué regresó y qué imprimió mientras corría."""
+    espacio = {}
+    salida = io.StringIO()
+    llamadas = []
+    for _, fuente in fuentes:
+        exec(fuente, espacio)
+
+    def envolver(nombre, original):
+        def envoltura(*args):
+            registro = {"funcion": nombre, "args": args, "desde": salida.tell()}
+            llamadas.append(registro)
+            registro["ret"] = original(*args)
+            registro["imprimio"] = salida.getvalue()[registro["desde"]:]
+            return registro["ret"]
+        return envoltura
+
+    for nombre, _ in fuentes:
+        espacio[nombre] = envolver(nombre, espacio[nombre])
+    with contextlib.redirect_stdout(salida):
+        exec(programa, espacio)
+    return llamadas, salida.getvalue().rstrip("\n"), espacio
+
+
+def llamadas_en_fuente(programa, funcion):
+    """Las llamadas a la función en el código, en el orden en que Python las ejecuta."""
+    orden = []
+
+    def visitar(nodo):
+        for hijo in ast.iter_child_nodes(nodo):
+            visitar(hijo)
+        if isinstance(nodo, ast.Call) and isinstance(nodo.func, ast.Name) and nodo.func.id == funcion:
+            orden.append(nodo)
+    visitar(ast.parse(programa))
+    return orden
+
+
+def variantes(fuente):
+    """La función con los errores típicos: print en vez de return, return en vez de print y los
+    parámetros al revés."""
+    lineas = fuente.split("\n")
+    salida = []
+    con_print = [re.sub(r"^(\s*)return (.+)$", r"\1print(\2)", l) for l in lineas]
+    salida.append("\n".join(con_print))
+    con_return = [re.sub(r"^(\s*)print\((.*)\)$", r"\1return \2", l) for l in lineas]
+    salida.append("\n".join(con_return))
+    m = re.match(r"def (\w+)\((.*)\):", lineas[0])
+    params = [x.strip() for x in m.group(2).split(",")]
+    if len(params) > 1:
+        salida.append("\n".join([f"def {m.group(1)}({', '.join(reversed(params))}):"] + lineas[1:]))
+    return [v for v in salida if v != fuente]
+
+
+def tres_distintas(correcta, candidatas, nombre):
+    falsas = []
+    for c in candidatas:
+        if c is not None and c != correcta and c not in falsas:
+            falsas.append(c)
+    assert len(falsas) >= 3, f"{nombre}: faltan respuestas falsas ({falsas})"
+    return falsas[:3]
+
+
+def generar_maquinas():
+    fuentes = list(MAQUINAS)
+    por_nombre = dict(fuentes)
+    retos = []
+    for n, r in enumerate(LLAMADAS, 1):
+        nombre = f"llamada {n} ({r['programa'].splitlines()[-1]})"
+        llamadas, pantalla, espacio = correr_registrando(fuentes, r["programa"])
+        ocurrencia = r.get("ocurrencia", 1)
+        mias = [c for c in llamadas if c["funcion"] == r["funcion"]]
+        llamada = mias[ocurrencia - 1]
+        nodo = llamadas_en_fuente(r["programa"], r["funcion"])[ocurrencia - 1]
+        fuente_args = [ast.get_source_segment(r["programa"], a) for a in nodo.args]
+        definicion = ast.parse(por_nombre[r["funcion"]]).body[0]
+        params = [a.arg for a in definicion.args.args]
+        assert len(params) == len(llamada["args"]) == len(fuente_args), nombre
+        regresa = repr(llamada["ret"])
+        if r["destino"] not in ("print", "nada"):
+            assert espacio[r["destino"]] == llamada["ret"], f"{nombre}: {r['destino']} no guarda lo que regresó"
+        # respuestas falsas: correr el mismo programa con la función "con el error típico"
+        otras_regresa, otras_pantalla = [], []
+        for v in variantes(por_nombre[r["funcion"]]):
+            try:
+                ll, pa, _ = correr_registrando([(k, v if k == r["funcion"] else f) for k, f in fuentes], r["programa"])
+                otras_regresa.append(repr([c for c in ll if c["funcion"] == r["funcion"]][ocurrencia - 1]["ret"]))
+                otras_pantalla.append(pa)
+            except Exception:  # noqa: BLE001 - una versión con error puede tronar
+                pass
+        impreso = llamada["imprimio"].rstrip("\n")
+        textos = [repr(t) for t in re.findall(r'"([^"]*)"', por_nombre[r["funcion"]])]
+        respaldo_r = otras_regresa + ([repr(impreso)] if impreso else []) + textos + ["None"]
+        if isinstance(llamada["ret"], bool):
+            respaldo_r.append(repr(not llamada["ret"]))
+        try:
+            if isinstance(llamada["ret"], bool):
+                raise TypeError
+            x = float(llamada["ret"])
+            respaldo_r += [repr(x) if isinstance(llamada["ret"], int) else repr(int(x)), repr(llamada["ret"] + 1) if not isinstance(llamada["ret"], bool) else "None"]
+        except (TypeError, ValueError):
+            pass
+        respaldo_r += ["0", "'None'", "True"]
+        lineas = pantalla.split("\n")
+        respaldo_p = otras_pantalla + ["\n".join(reversed(lineas)), pantalla + "\nNone", "\n".join(lineas[:-1]) if len(lineas) > 1 else "None", regresa, "(nada)"]
+        respaldo_p = [x for x in respaldo_p if x != "" or pantalla != ""]
+        # cubos: los valores correctos y algunos que confunden (el nombre de la variable, la expresión sin calcular…)
+        valores = [repr(a) for a in llamada["args"]]
+        extras = []
+        for arg in nodo.args:
+            if isinstance(arg, ast.Constant):
+                continue  # un valor escrito tal cual no confunde
+            texto_arg = ast.get_source_segment(r["programa"], arg)
+            extras.append(texto_arg)  # mandar "el texto" en vez del valor
+            for sub in ast.walk(arg):  # los valores de adentro, sin calcular
+                if isinstance(sub, ast.Name) and sub.id in espacio and not callable(espacio[sub.id]):
+                    extras.append(repr(espacio[sub.id]))
+                elif isinstance(sub, ast.Constant) and sub is not arg:
+                    extras.append(repr(sub.value))
+        extras = [e for i, e in enumerate(extras) if e not in valores and e not in extras[:i]]
+        for t in textos + [repr(a + 1) for a in llamada["args"] if isinstance(a, int) and not isinstance(a, bool)] + ["None", "0"]:
+            if len(extras) >= 2:
+                break
+            if t not in valores and t not in extras:
+                extras.append(t)
+        lineas_programa = r["programa"].split("\n")
+        texto_llamada = ast.get_source_segment(r["programa"], nodo)
+        linea_llamada = next(i for i, l in enumerate(lineas_programa) if texto_llamada in l)
+        retos.append({
+            "nivel": r["nivel"], "lineas": lineas_programa, "linea": linea_llamada, "llamada": texto_llamada,
+            "funcion": r["funcion"], "firma": por_nombre[r["funcion"]].split("\n")[0],
+            "parametros": [{"nombre": p_, "valor": v, "fuente": f} for p_, v, f in zip(params, valores, fuente_args)],
+            "cubos": valores + extras[:3],
+            "regresa": regresa, "regresaFalsas": tres_distintas(regresa, respaldo_r, nombre),
+            "pantalla": pantalla if pantalla else "(nada)",
+            "pantallaFalsas": tres_distintas(pantalla if pantalla else "(nada)", [x if x else "(nada)" for x in respaldo_p], nombre),
+            "imprimio": impreso, "destino": r["destino"],
+        })
+    return {"funciones": [{"nombre": k, "codigo": v} for k, v in fuentes], "retos": retos}
+
+
 # ---------- 2. datos para el visor ----------
 
 def exportar(nombre, variable, datos):
@@ -425,6 +569,31 @@ operación que ya tenga sus dos números listos.</p>
 <table><tr><th>Paso</th><th>Operación</th><th>Da</th></tr>{hoja}</table>""")
 
 
+def manual_maquinas(datos):
+    tarjetas = "".join(f"""<div class="tarjeta"><h3><span class="num">Máquina {i}</span> · <span class="mono">{esc(f['nombre'])}</span></h3>
+<pre>{esc(f['codigo'])}</pre></div>""" for i, f in enumerate(datos["funciones"], 1))
+    hoja = "".join("<tr><td style='height:9mm'></td><td></td><td></td><td></td></tr>" for _ in range(5))
+    return pagina("Manual · La máquina de funciones", f"""
+<div class="marca">ENLACE VR · PYTHON · TC1037 · MANUAL DEL EQUIPO</div>
+<h1>La máquina de funciones</h1>
+<div class="aviso">El Operador les dicta un programa corto, por ejemplo <span class="mono">a = area(3, 4)</span> y
+<span class="mono">print("Área:", a)</span>. Busquen la función aquí y díganle, en orden:
+<b>1)</b> qué valor recibe cada parámetro, <b>2)</b> qué regresa la función y <b>3)</b> qué aparece en la pantalla.</div>
+<table>
+<tr><th>Recuerden</th></tr>
+<tr><td>Los valores entran a los parámetros <b>en orden</b>: el primero al primero. El nombre de la variable no importa:
+en <span class="mono">resta(b, a)</span> el parámetro <span class="mono">a</span> recibe el valor de <span class="mono">b</span>.</td></tr>
+<tr><td>Antes de llamar, Python calcula lo que está entre paréntesis: <span class="mono">es_par(n + 1)</span> con
+<span class="mono">n = 7</span> manda un <span class="mono">8</span>.</td></tr>
+<tr><td><span class="mono">return</span> regresa un valor a quien llamó. <span class="mono">print</span> solo lo muestra en la pantalla.
+Si la función no tiene <span class="mono">return</span>, regresa <span class="mono">None</span>.</td></tr>
+<tr><td>Lo que regresa se dice como valor de Python: los textos van entre comillas (<span class="mono">'Aprobado'</span>), los decimales con punto (<span class="mono">9.0</span>).</td></tr>
+</table>
+<div class="rejilla">{tarjetas}</div>
+<h2>Hoja de trabajo</h2>
+<table><tr><th>Llamada</th><th>Cada parámetro recibe</th><th>Regresa</th><th>En la pantalla</th></tr>{hoja}</table>""")
+
+
 INSTRUCTIVOS = {
     "programa": ("Arma el programa", "TC1037 y TC1038", "Orden de un programa, sangría, EPS, if/else, funciones (TC1037); ciclos y listas (TC1038).",
                  ["El Operador dice el <b>número de programa</b>, voltea, toma una línea de código y la <b>lee en voz alta</b> (con o sin sangría).",
@@ -439,6 +608,11 @@ INSTRUCTIVOS = {
                     ["El Operador dicta la expresión, por ejemplo <span class='mono'>print(4 + 6 * 3 // 4 - 2 ** 3 / 8)</span>, y el equipo la escribe en su hoja.",
                      "El equipo dice qué operación va primero; el Operador apunta a ese operador. Luego la calculan a mano y el Operador escribe cuánto da.",
                      "La expresión se reduce hasta un solo valor. +1 por cada paso bien hecho. Ojo: <span class='mono'>7.0</span> no es <span class='mono'>7</span>."]),
+    "maquinas": ("La máquina de funciones", "TC1037",
+                 "Llamar una función: qué valores recibe cada parámetro (en orden), qué regresa con return, qué muestra con print y por qué una función sin return regresa None.",
+                 ["El Operador dicta el programa (por ejemplo <span class='mono'>a = area(3, 4)</span>). Ve la función como una máquina y unos cubos con valores.",
+                  "El equipo busca la función en el manual y dice qué valor va en cada parámetro; el Operador mete cada cubo en su lugar.",
+                  "Luego eligen qué regresa la función y qué aparece en la pantalla. +1 por cada paso. Ojo: print no es return."]),
     "archivero": ("El archivero", "TC1038", "Listas paralelas, índices, recorrer con for, buscar, contar, el mayor sin max(), eliminar y agregar.",
                   ["El Operador lee la pregunta (por ejemplo <span class='mono'>print(mejor(nombres, prom))</span>) y ve las listas como cajas.",
                    "El equipo, con el código, le pide los datos por posición y sigue la función a mano.",
@@ -505,6 +679,9 @@ def main():
     expresiones = generar_expresiones()
     print(f"comprobado: {len(expresiones)} expresiones de la calculadora (cada paso evaluado en Python)")
     exportar("datos_calculadora.js", "CALCULADORA", expresiones)
+    maquinas = generar_maquinas()
+    print(f"comprobado: {len(maquinas['retos'])} llamadas de la máquina de funciones (corridas en Python)")
+    exportar("datos_maquinas.js", "MAQUINAS", maquinas)
     total = sum(len(v["retos"]) for v in interprete.values())
     print(f"comprobado: {sum(len(v) for v in programas.values())} programas, {total} preguntas del intérprete, archivero = Python")
     exportar("datos_programa.js", "PROGRAMAS", programas)
@@ -516,7 +693,8 @@ def main():
         guardar(f"Manual_Interprete_humano_{curso}", manual_interprete(curso, interprete[curso]), pdf)
     guardar("Manual_El_archivero_TC1038", manual_archivero(archivero), pdf)
     guardar("Manual_Calculadora_humana", manual_calculadora(expresion(EJEMPLO_MANUAL, {}, 3)), pdf)
-    for clave, nombre in [("programa", "Arma_el_programa"), ("interprete", "Interprete_humano"), ("archivero", "El_archivero"), ("calculadora", "Calculadora_humana")]:
+    guardar("Manual_Maquina_de_funciones_TC1037", manual_maquinas(maquinas), pdf)
+    for clave, nombre in [("programa", "Arma_el_programa"), ("interprete", "Interprete_humano"), ("archivero", "El_archivero"), ("calculadora", "Calculadora_humana"), ("maquinas", "Maquina_de_funciones")]:
         guardar(f"Instructivo_{nombre}", instructivo(clave), pdf)
 
 

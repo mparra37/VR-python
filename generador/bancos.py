@@ -342,3 +342,59 @@ PLANTILLAS = {
     3: ["(a + b) * c // d", "a + b * c - d ** 2 / e", "(a - b) ** 2 % c", "x // y + x % y", "x % y * (x - y)",
         "x ** 2 // y - z", "a + b * c > d", "x % 2 == 0", "(x + y) / 2 >= z", "a * b // c == d % e"],
 }
+
+# ---------------------------------------------------------------------------
+# La máquina de funciones (TC1037): mandar datos a una función y ver qué regresa.
+# MAQUINAS = las funciones del manual (en este orden). Cada reto es un programa corto; "funcion" y
+# "ocurrencia" dicen qué llamada se ve como máquina (contando en el orden en que Python las ejecuta).
+# "destino" = a dónde va lo que regresa: una variable ("r"), el print, o se pierde ("nada").
+# generar.py corre cada programa en Python y registra qué recibió y qué regresó cada llamada.
+# ---------------------------------------------------------------------------
+
+MAQUINAS = [
+    ("doble", "def doble(x):\n    return x * 2"),
+    ("cuadrado", "def cuadrado(x):\n    return x ** 2"),
+    ("area", "def area(base, altura):\n    return base * altura"),
+    ("resta", "def resta(a, b):\n    return a - b"),
+    ("promedio", "def promedio(a, b, c):\n    return (a + b + c) / 3"),
+    ("es_par", "def es_par(n):\n    return n % 2 == 0"),
+    ("aprobado", 'def aprobado(cal):\n    if cal >= 70:\n        return "Aprobado"\n    return "Reprobado"'),
+    ("mayor", "def mayor(a, b):\n    if a > b:\n        return a\n    else:\n        return b"),
+    ("descuento", "def descuento(precio, porcentaje):\n    return precio - precio * porcentaje / 100"),
+    ("saluda", 'def saluda(nombre):\n    print("Hola", nombre)'),
+    ("imprime_area", 'def imprime_area(base, altura):\n    print("Área:", base * altura)'),
+    ("muestra_doble", "def muestra_doble(x):\n    print(x * 2)\n    return x * 2"),
+    ("envio", "def envio(precio):\n    if precio >= 500:\n        return 0\n    return 50"),
+    ("total", "def total(precio):\n    return precio + envio(precio)"),
+]
+
+LLAMADAS = [
+    # nivel 1: una función con return
+    {"nivel": 1, "programa": "r = doble(5)\nprint(r)", "funcion": "doble", "destino": "r"},
+    {"nivel": 1, "programa": 'a = area(3, 4)\nprint("Área:", a)', "funcion": "area", "destino": "a"},
+    {"nivel": 1, "programa": "print(cuadrado(7))", "funcion": "cuadrado", "destino": "print"},
+    {"nivel": 1, "programa": "c = aprobado(65)\nprint(c)", "funcion": "aprobado", "destino": "c"},
+    {"nivel": 1, "programa": "p = promedio(8, 9, 10)\nprint(p)", "funcion": "promedio", "destino": "p"},
+    {"nivel": 1, "programa": "print(es_par(14))", "funcion": "es_par", "destino": "print"},
+    {"nivel": 1, "programa": "m = mayor(4, 9)\nprint(m)", "funcion": "mayor", "destino": "m"},
+    {"nivel": 1, "programa": "d = descuento(200, 10)\nprint(d)", "funcion": "descuento", "destino": "d"},
+    # nivel 2: print contra return
+    {"nivel": 2, "programa": 'r = saluda("Ana")\nprint(r)', "funcion": "saluda", "destino": "r"},
+    {"nivel": 2, "programa": 'saluda("Luis")', "funcion": "saluda", "destino": "nada"},
+    {"nivel": 2, "programa": "x = muestra_doble(4)\nprint(x + 1)", "funcion": "muestra_doble", "destino": "x"},
+    {"nivel": 2, "programa": "imprime_area(2, 5)", "funcion": "imprime_area", "destino": "nada"},
+    {"nivel": 2, "programa": "r = imprime_area(3, 3)\nprint(r)", "funcion": "imprime_area", "destino": "r"},
+    {"nivel": 2, "programa": "print(doble(3) + doble(4))", "funcion": "doble", "ocurrencia": 2, "destino": "print"},
+    {"nivel": 2, "programa": "muestra_doble(6)\nprint(\"Listo\")", "funcion": "muestra_doble", "destino": "nada"},
+    {"nivel": 2, "programa": "c = cuadrado(4)\nprint(c, c + 1)", "funcion": "cuadrado", "destino": "c"},
+    # nivel 3: el orden de los argumentos, variables, expresiones y funciones que llaman a otras
+    {"nivel": 3, "programa": "a = 10\nb = 3\nprint(resta(b, a))", "funcion": "resta", "destino": "print"},
+    {"nivel": 3, "programa": "a = 10\nb = 3\nr = resta(a, b)\nprint(r)", "funcion": "resta", "destino": "r"},
+    {"nivel": 3, "programa": "x = 5\ny = mayor(x, 2)\nprint(y * 2)", "funcion": "mayor", "destino": "y"},
+    {"nivel": 3, "programa": "n = 7\nr = es_par(n + 1)\nprint(r)", "funcion": "es_par", "destino": "r"},
+    {"nivel": 3, "programa": "r = doble(doble(2))\nprint(r)", "funcion": "doble", "ocurrencia": 2, "destino": "r"},
+    {"nivel": 3, "programa": "print(total(300))", "funcion": "total", "destino": "print"},
+    {"nivel": 3, "programa": "precio = 600\nprint(total(precio))", "funcion": "total", "destino": "print"},
+    {"nivel": 3, "programa": "base = 2\naltura = 7\nprint(area(altura, base))", "funcion": "area", "destino": "print"},
+    {"nivel": 3, "programa": "cal = 80\nr = aprobado(cal - 15)\nprint(r)", "funcion": "aprobado", "destino": "r"},
+]

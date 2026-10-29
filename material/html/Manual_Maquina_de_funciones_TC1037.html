@@ -1,0 +1,86 @@
+<!doctype html><html lang='es'><head><meta charset='utf-8'><title>Manual · La máquina de funciones</title><style>
+@page { size: letter; margin: 13mm; }
+* { box-sizing: border-box; }
+body { font-family: "Segoe UI", Arial, sans-serif; color: #15171a; font-size: 10.5pt; line-height: 1.4; margin: 0; }
+h1 { font-size: 21pt; margin: 0 0 1mm; color: #0B1F3A; }
+h2 { font-size: 13pt; margin: 5mm 0 2mm; color: #2F6FBF; }
+h3 { font-size: 11.5pt; margin: 0 0 1.5mm; color: #0B1F3A; }
+p { margin: 0 0 2mm; }
+ol, ul { margin: 0 0 2mm; padding-left: 6mm; }
+li { margin-bottom: 1mm; }
+.marca { display: inline-block; border: 1.5px solid #2F6FBF; color: #2F6FBF; border-radius: 4px; padding: 0 2mm; font-size: 8.5pt; font-weight: 600; letter-spacing: .5px; margin-bottom: 2mm; }
+.sub { color: #5b6270; margin-bottom: 4mm; }
+.aviso { border-left: 4px solid #2F6FBF; background: #EEF3FA; padding: 2.5mm 4mm; margin: 2mm 0 4mm; }
+.mono, pre, code { font-family: Consolas, "Courier New", monospace; }
+pre { margin: 0; white-space: pre; font-size: 9.6pt; line-height: 1.35; }
+.rejilla { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+.tarjeta { border: 1.2px solid #c9ced6; border-radius: 6px; padding: 3mm 3.5mm; break-inside: avoid; }
+.tarjeta .num { color: #2F6FBF; font-weight: 700; }
+.pasos { counter-reset: paso; list-style: none; padding: 0; margin: 1mm 0 2mm; }
+.pasos li { counter-increment: paso; font-family: Consolas, monospace; font-size: 9.6pt; white-space: pre; margin: 0 0 .6mm; }
+.pasos li::before { content: counter(paso) "  "; color: #8B95A7; }
+.consola { background: #0B1F3A; color: #E6EDF7; border-radius: 4px; padding: 2mm 3mm; }
+.etq { font-size: 8.5pt; font-weight: 600; color: #5b6270; letter-spacing: .4px; margin-top: 1.5mm; }
+.tema { color: #8B95A7; font-size: 8.5pt; }
+table { border-collapse: collapse; width: 100%; margin: 1mm 0 3mm; }
+th, td { border: 1px solid #c9ced6; padding: 1.4mm 2.2mm; text-align: left; vertical-align: top; }
+th { background: #eef1f5; }
+.tres { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; }
+.paso-grande { border: 1.2px solid #c9ced6; border-radius: 6px; padding: 3mm; }
+.paso-grande b { display: block; color: #2F6FBF; font-size: 15pt; }
+.pie { color: #5b6270; font-size: 8.5pt; margin-top: 3mm; }
+</style></head><body>
+<div class="marca">ENLACE VR · PYTHON · TC1037 · MANUAL DEL EQUIPO</div>
+<h1>La máquina de funciones</h1>
+<div class="aviso">El Operador les dicta un programa corto, por ejemplo <span class="mono">a = area(3, 4)</span> y
+<span class="mono">print("Área:", a)</span>. Busquen la función aquí y díganle, en orden:
+<b>1)</b> qué valor recibe cada parámetro, <b>2)</b> qué regresa la función y <b>3)</b> qué aparece en la pantalla.</div>
+<table>
+<tr><th>Recuerden</th></tr>
+<tr><td>Los valores entran a los parámetros <b>en orden</b>: el primero al primero. El nombre de la variable no importa:
+en <span class="mono">resta(b, a)</span> el parámetro <span class="mono">a</span> recibe el valor de <span class="mono">b</span>.</td></tr>
+<tr><td>Antes de llamar, Python calcula lo que está entre paréntesis: <span class="mono">es_par(n + 1)</span> con
+<span class="mono">n = 7</span> manda un <span class="mono">8</span>.</td></tr>
+<tr><td><span class="mono">return</span> regresa un valor a quien llamó. <span class="mono">print</span> solo lo muestra en la pantalla.
+Si la función no tiene <span class="mono">return</span>, regresa <span class="mono">None</span>.</td></tr>
+<tr><td>Lo que regresa se dice como valor de Python: los textos van entre comillas (<span class="mono">'Aprobado'</span>), los decimales con punto (<span class="mono">9.0</span>).</td></tr>
+</table>
+<div class="rejilla"><div class="tarjeta"><h3><span class="num">Máquina 1</span> · <span class="mono">doble</span></h3>
+<pre>def doble(x):
+    return x * 2</pre></div><div class="tarjeta"><h3><span class="num">Máquina 2</span> · <span class="mono">cuadrado</span></h3>
+<pre>def cuadrado(x):
+    return x ** 2</pre></div><div class="tarjeta"><h3><span class="num">Máquina 3</span> · <span class="mono">area</span></h3>
+<pre>def area(base, altura):
+    return base * altura</pre></div><div class="tarjeta"><h3><span class="num">Máquina 4</span> · <span class="mono">resta</span></h3>
+<pre>def resta(a, b):
+    return a - b</pre></div><div class="tarjeta"><h3><span class="num">Máquina 5</span> · <span class="mono">promedio</span></h3>
+<pre>def promedio(a, b, c):
+    return (a + b + c) / 3</pre></div><div class="tarjeta"><h3><span class="num">Máquina 6</span> · <span class="mono">es_par</span></h3>
+<pre>def es_par(n):
+    return n % 2 == 0</pre></div><div class="tarjeta"><h3><span class="num">Máquina 7</span> · <span class="mono">aprobado</span></h3>
+<pre>def aprobado(cal):
+    if cal &gt;= 70:
+        return &quot;Aprobado&quot;
+    return &quot;Reprobado&quot;</pre></div><div class="tarjeta"><h3><span class="num">Máquina 8</span> · <span class="mono">mayor</span></h3>
+<pre>def mayor(a, b):
+    if a &gt; b:
+        return a
+    else:
+        return b</pre></div><div class="tarjeta"><h3><span class="num">Máquina 9</span> · <span class="mono">descuento</span></h3>
+<pre>def descuento(precio, porcentaje):
+    return precio - precio * porcentaje / 100</pre></div><div class="tarjeta"><h3><span class="num">Máquina 10</span> · <span class="mono">saluda</span></h3>
+<pre>def saluda(nombre):
+    print(&quot;Hola&quot;, nombre)</pre></div><div class="tarjeta"><h3><span class="num">Máquina 11</span> · <span class="mono">imprime_area</span></h3>
+<pre>def imprime_area(base, altura):
+    print(&quot;Área:&quot;, base * altura)</pre></div><div class="tarjeta"><h3><span class="num">Máquina 12</span> · <span class="mono">muestra_doble</span></h3>
+<pre>def muestra_doble(x):
+    print(x * 2)
+    return x * 2</pre></div><div class="tarjeta"><h3><span class="num">Máquina 13</span> · <span class="mono">envio</span></h3>
+<pre>def envio(precio):
+    if precio &gt;= 500:
+        return 0
+    return 50</pre></div><div class="tarjeta"><h3><span class="num">Máquina 14</span> · <span class="mono">total</span></h3>
+<pre>def total(precio):
+    return precio + envio(precio)</pre></div></div>
+<h2>Hoja de trabajo</h2>
+<table><tr><th>Llamada</th><th>Cada parámetro recibe</th><th>Regresa</th><th>En la pantalla</th></tr><tr><td style='height:9mm'></td><td></td><td></td><td></td></tr><tr><td style='height:9mm'></td><td></td><td></td><td></td></tr><tr><td style='height:9mm'></td><td></td><td></td><td></td></tr><tr><td style='height:9mm'></td><td></td><td></td><td></td></tr><tr><td style='height:9mm'></td><td></td><td></td><td></td></tr></table></body></html>
