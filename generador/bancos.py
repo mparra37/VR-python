@@ -111,17 +111,17 @@ PROGRAMAS = {
         {
             "titulo": "Promedio del grupo",
             "descripcion": "Calcula el promedio de una lista de promedios sin usar sum().",
-            "pasos": ["Crea la lista prom con 92.5, 64.5 y 84.0.", "Empieza el total en 0.", "Para cada p en prom:", "   súmale p al total.", "Muestra total entre el tamaño de la lista, con 2 decimales."],
-            "lineas": ["prom = [92.5, 64.5, 84.0]", "total = 0", "for p in prom:", "    total += p", "print(round(total / len(prom), 2))"],
+            "pasos": ["Crea la lista prom con 78.5, 91.0 y 66.5.", "Empieza el total en 0.", "Para cada p en prom:", "   súmale p al total.", "Muestra total entre el tamaño de la lista, con 2 decimales."],
+            "lineas": ["prom = [78.5, 91.0, 66.5]", "total = 0", "for p in prom:", "    total += p", "print(round(total / len(prom), 2))"],
             "trampas": ["    total = p", "print(round(total / 2, 2))"],
             "entradas": [],
-            "salida": "80.33",
+            "salida": "78.67",
         },
         {
             "titulo": "Buscar alumno",
             "descripcion": "La función buscar(nombres, x) regresa la posición de x en la lista, o -1 si no está.",
-            "pasos": ["Define la función buscar con nombres y x:", "   para cada posición i de la lista:", "      si el nombre en i es x:", "         regresa i.", "   después del ciclo, regresa -1.", "Muestra buscar de la lista Ana, Javier, Omar con Omar."],
-            "lineas": ["def buscar(nombres, x):", "    for i in range(len(nombres)):", "        if nombres[i] == x:", "            return i", "    return -1", 'print(buscar(["Ana", "Javier", "Omar"], "Omar"))'],
+            "pasos": ["Define la función buscar con nombres y x:", "   para cada posición i de la lista:", "      si el nombre en i es x:", "         regresa i.", "   después del ciclo, regresa -1.", "Muestra buscar de la lista Luis, Eva, Mar con Mar."],
+            "lineas": ["def buscar(nombres, x):", "    for i in range(len(nombres)):", "        if nombres[i] == x:", "            return i", "    return -1", 'print(buscar(["Luis", "Eva", "Mar"], "Mar"))'],
             "trampas": ["        return -1", "            return x"],
             "entradas": [],
             "salida": "2",
@@ -129,38 +129,38 @@ PROGRAMAS = {
         {
             "titulo": "Lista de aprobados",
             "descripcion": "Con dos listas paralelas, arma una lista nueva con los nombres de quienes tienen 70 o más.",
-            "pasos": ["Crea la lista nombres: Ana, Javier, Omar.", "Crea la lista prom: 92.5, 64.5, 84.0.", "Empieza aprobados como lista vacía.", "Para cada posición i:", "   si el promedio en i es 70 o más:", "      agrega el NOMBRE en i a aprobados.", "Muestra aprobados y cuántos son."],
-            "lineas": ['nombres = ["Ana", "Javier", "Omar"]', "prom = [92.5, 64.5, 84.0]", "aprobados = []", "for i in range(len(prom)):", "    if prom[i] >= 70:", "        aprobados.append(nombres[i])", "print(aprobados, len(aprobados))"],
+            "pasos": ["Crea la lista nombres: Luis, Eva, Mar.", "Crea la lista prom: 78.5, 91.0, 66.5.", "Empieza aprobados como lista vacía.", "Para cada posición i:", "   si el promedio en i es 70 o más:", "      agrega el NOMBRE en i a aprobados.", "Muestra aprobados y cuántos son."],
+            "lineas": ['nombres = ["Luis", "Eva", "Mar"]', "prom = [78.5, 91.0, 66.5]", "aprobados = []", "for i in range(len(prom)):", "    if prom[i] >= 70:", "        aprobados.append(nombres[i])", "print(aprobados, len(aprobados))"],
             "trampas": ["        aprobados.append(prom[i])", "aprobados = 0"],
             "entradas": [],
-            "salida": "['Ana', 'Omar'] 2",
+            "salida": "['Luis', 'Eva'] 2",
         },
         {
             "titulo": "Mejor promedio",
             "descripcion": "Encuentra al alumno con el promedio más alto sin usar max(). Si hay empate, gana el primero.",
-            "pasos": ["Crea la lista nombres: Ana, Javier, Omar.", "Crea la lista prom: 92.5, 64.5, 84.0.", "El mejor empieza en la posición 0.", "Para cada posición i desde la 1:", "   si el promedio en i es MAYOR que el del mejor:", "      el mejor ahora es i.", "Muestra el nombre y el promedio del mejor."],
-            "lineas": ['nombres = ["Ana", "Javier", "Omar"]', "prom = [92.5, 64.5, 84.0]", "mejor = 0", "for i in range(1, len(prom)):", "    if prom[i] > prom[mejor]:", "        mejor = i", 'print(nombres[mejor], "con", prom[mejor])'],
+            "pasos": ["Crea la lista nombres: Luis, Eva, Mar.", "Crea la lista prom: 78.5, 91.0, 66.5.", "El mejor empieza en la posición 0.", "Para cada posición i desde la 1:", "   si el promedio en i es MAYOR que el del mejor:", "      el mejor ahora es i.", "Muestra el nombre y el promedio del mejor."],
+            "lineas": ['nombres = ["Luis", "Eva", "Mar"]', "prom = [78.5, 91.0, 66.5]", "mejor = 0", "for i in range(1, len(prom)):", "    if prom[i] > prom[mejor]:", "        mejor = i", 'print(nombres[mejor], "con", prom[mejor])'],
             "trampas": ["    if prom[i] >= prom[mejor]:", "        mejor = prom[i]"],
             "entradas": [],
-            "salida": "Ana con 92.5",
+            "salida": "Eva con 91.0",
         },
         {
             "titulo": "Eliminar alumno",
-            "descripcion": "Quita a Javier de las dos listas paralelas para que sigan alineadas.",
-            "pasos": ["Crea la lista nombres: Ana, Javier, Omar.", "Crea la lista prom: 92.5, 64.5, 84.0.", "Busca la posición de Javier en nombres.", "Quita esa posición de nombres.", "Quita la MISMA posición de prom.", "Muestra las dos listas."],
-            "lineas": ['nombres = ["Ana", "Javier", "Omar"]', "prom = [92.5, 64.5, 84.0]", 'pos = nombres.index("Javier")', "nombres.pop(pos)", "prom.pop(pos)", "print(nombres, prom)"],
+            "descripcion": "Quita a Eva de las dos listas paralelas para que sigan alineadas.",
+            "pasos": ["Crea la lista nombres: Luis, Eva, Mar.", "Crea la lista prom: 78.5, 91.0, 66.5.", "Busca la posición de Eva en nombres.", "Quita esa posición de nombres.", "Quita la MISMA posición de prom.", "Muestra las dos listas."],
+            "lineas": ['nombres = ["Luis", "Eva", "Mar"]', "prom = [78.5, 91.0, 66.5]", 'pos = nombres.index("Eva")', "nombres.pop(pos)", "prom.pop(pos)", "print(nombres, prom)"],
             "trampas": ["prom.pop(0)", "nombres.remove(pos)"],
             "entradas": [],
-            "salida": "['Ana', 'Omar'] [92.5, 84.0]",
+            "salida": "['Luis', 'Mar'] [78.5, 66.5]",
         },
         {
             "titulo": "Lugar en el grupo",
             "descripcion": "El lugar de cada alumno es 1 más cuántos tienen un promedio mayor. Sin ordenar las listas (ciclo anidado).",
-            "pasos": ["Crea la lista nombres: Ana, Javier, Omar.", "Crea la lista prom: 92.5, 64.5, 84.0.", "Para cada alumno i:", "   su lugar empieza en 1.", "   para cada alumno j:", "      si el promedio de j es mayor que el de i:", "         súmale 1 al lugar.", "   muestra el nombre de i y su lugar."],
-            "lineas": ['nombres = ["Ana", "Javier", "Omar"]', "prom = [92.5, 64.5, 84.0]", "for i in range(len(prom)):", "    lugar = 1", "    for j in range(len(prom)):", "        if prom[j] > prom[i]:", "            lugar += 1", '    print(nombres[i], "- lugar", lugar)'],
+            "pasos": ["Crea la lista nombres: Luis, Eva, Mar.", "Crea la lista prom: 78.5, 91.0, 66.5.", "Para cada alumno i:", "   su lugar empieza en 1.", "   para cada alumno j:", "      si el promedio de j es mayor que el de i:", "         súmale 1 al lugar.", "   muestra el nombre de i y su lugar."],
+            "lineas": ['nombres = ["Luis", "Eva", "Mar"]', "prom = [78.5, 91.0, 66.5]", "for i in range(len(prom)):", "    lugar = 1", "    for j in range(len(prom)):", "        if prom[j] > prom[i]:", "            lugar += 1", '    print(nombres[i], "- lugar", lugar)'],
             "trampas": ["lugar = 1", "            lugar = lugar + j"],
             "entradas": [],
-            "salida": "Ana - lugar 1 Javier - lugar 3 Omar - lugar 2",
+            "salida": "Luis - lugar 2 Eva - lugar 1 Mar - lugar 3",
         },
     ],
 }
@@ -174,7 +174,7 @@ FUNCIONES = {
     "TC1037": [
         {
             "codigo": "def f1(a, b):\n    return a // b + a % b",
-            "args": ["7, 2", "9, 4", "17, 5", "10, 3", "23, 6"],
+            "args": ["9, 4", "17, 5", "10, 3", "23, 6", "15, 4"],
             "errores": ["def f1(a, b):\n    return a / b + a % b", "def f1(a, b):\n    return a // (b + a) % b", "def f1(a, b):\n    return a % b + a % b"],
             "tema": "// y %",
         },
@@ -186,7 +186,7 @@ FUNCIONES = {
         },
         {
             "codigo": "def f3(total):\n    if total >= 500:\n        total = total * 0.9\n    return total",
-            "args": ["450", "500", "600", "800", "120.0"],
+            "args": ["450", "650", "800", "120.0", "499"],
             "errores": ["def f3(total):\n    if total > 500:\n        total = total * 0.9\n    return total", "def f3(total):\n    if total >= 500:\n        total = total * 0.1\n    return total", "def f3(total):\n    return total * 0.9"],
             "tema": "if y operaciones",
         },
@@ -198,13 +198,13 @@ FUNCIONES = {
         },
         {
             "codigo": 'def f5(x):\n    if x > 10:\n        return "A"\n    elif x > 5:\n        return "B"\n    else:\n        return "C"',
-            "args": ["3", "6", "10", "15"],
+            "args": ["3", "6", "10", "11", "20"],
             "errores": ['def f5(x):\n    if x > 5:\n        return "B"\n    elif x > 10:\n        return "A"\n    else:\n        return "C"', 'def f5(x):\n    if x >= 10:\n        return "A"\n    elif x >= 5:\n        return "B"\n    else:\n        return "C"'],
             "tema": "if, elif, else",
         },
         {
             "codigo": 'def f6(edad, permiso):\n    if edad >= 18 or permiso:\n        return "Pasa"\n    return "No pasa"',
-            "args": ["17, True", "17, False", "18, False", "20, True"],
+            "args": ["16, True", "15, False", "18, False", "20, True"],
             "errores": ['def f6(edad, permiso):\n    if edad >= 18 and permiso:\n        return "Pasa"\n    return "No pasa"', 'def f6(edad, permiso):\n    if edad > 18 or permiso:\n        return "Pasa"\n    return "No pasa"'],
             "tema": "or y and",
         },
@@ -216,7 +216,7 @@ FUNCIONES = {
         },
         {
             "codigo": "def doble(x):\n    return x * 2\n\ndef f8(x):\n    return doble(x) + 1",
-            "args": ["3", "5", "10", "0"],
+            "args": ["4", "5", "10", "0"],
             "errores": ["def doble(x):\n    return x * 2\n\ndef f8(x):\n    return doble(x + 1)", "def doble(x):\n    return x * 2\n\ndef f8(x):\n    return x + 1", "def doble(x):\n    return x * 2\n\ndef f8(x):\n    return doble(doble(x))"],
             "tema": "una función que llama a otra",
         },
@@ -236,61 +236,61 @@ FUNCIONES = {
     "TC1038": [
         {
             "codigo": "def f1(n):\n    total = 0\n    for i in range(1, n):\n        total += i\n    return total",
-            "args": ["4", "5", "6", "10"],
+            "args": ["4", "6", "7", "10"],
             "errores": ["def f1(n):\n    total = 0\n    for i in range(1, n + 1):\n        total += i\n    return total", "def f1(n):\n    total = 0\n    for i in range(n):\n        total += 1\n    return total"],
             "tema": "range y acumulador",
         },
         {
             "codigo": "def f2(n):\n    while n < 20:\n        n = n * 3\n    return n",
-            "args": ["1", "2", "5", "7", "20"],
+            "args": ["2", "4", "5", "7", "20"],
             "errores": ["def f2(n):\n    while n <= 20:\n        n = n * 3\n    return n", "def f2(n):\n    if n < 20:\n        n = n * 3\n    return n"],
             "tema": "while",
         },
         {
             "codigo": "def f3(nums):\n    return nums[1] + nums[-1]",
-            "args": ["[4, 8, 15, 16]", "[1, 2, 3]", "[10, 20, 30, 40, 50]", "[5, 7]"],
+            "args": ["[3, 9, 12, 6]", "[1, 2, 3]", "[10, 20, 30, 40, 50]", "[5, 7]"],
             "errores": ["def f3(nums):\n    return nums[0] + nums[-1]", "def f3(nums):\n    return nums[1] + nums[len(nums) - 2]", "def f3(nums):\n    return nums[2] + nums[-1]"],
             "tema": "índices y nums[-1]",
         },
         {
             "codigo": "def f4(prom):\n    cuenta = 0\n    for p in prom:\n        if p >= 70:\n            cuenta += 1\n    return cuenta",
-            "args": ["[92.5, 64.5, 84.0]", "[70, 69.5, 100]", "[50, 60]", "[70, 70, 70, 71]"],
+            "args": ["[88.5, 61.0, 79.5]", "[70, 69.5, 100]", "[50, 60]", "[70, 70, 70, 71]"],
             "errores": ["def f4(prom):\n    cuenta = 0\n    for p in prom:\n        if p > 70:\n            cuenta += 1\n    return cuenta", "def f4(prom):\n    cuenta = 0\n    for p in prom:\n        if p < 70:\n            cuenta += 1\n    return cuenta"],
             "tema": "contar con if",
         },
         {
             "codigo": "def f5(nombres, x):\n    for i in range(len(nombres)):\n        if nombres[i] == x:\n            return i\n    return -1",
-            "args": ['["Ana", "Omar", "Ana"], "Ana"', '["Ana", "Omar", "Luis"], "Luis"', '["Ana", "Omar"], "Pedro"', '["Eva", "Ana", "Luis", "Ana"], "Ana"'],
+            "args": ['["Eva", "Luis", "Eva"], "Eva"', '["Ana", "Omar", "Luis"], "Luis"', '["Ana", "Omar"], "Pedro"', '["Eva", "Ana", "Luis", "Ana"], "Ana"'],
             "errores": ["def f5(nombres, x):\n    pos = -1\n    for i in range(len(nombres)):\n        if nombres[i] == x:\n            pos = i\n    return pos", "def f5(nombres, x):\n    for i in range(len(nombres)):\n        if nombres[i] == x:\n            return i + 1\n    return 0"],
             "tema": "buscar",
         },
         {
             "codigo": "def f6(prom):\n    mejor = 0\n    for i in range(len(prom)):\n        if prom[i] > prom[mejor]:\n            mejor = i\n    return mejor",
-            "args": ["[80, 95, 95, 70]", "[90, 70, 90]", "[60, 75, 88]", "[99, 50]"],
+            "args": ["[85, 97, 97, 60]", "[88, 72, 88]", "[60, 75, 88]", "[99, 50]"],
             "errores": ["def f6(prom):\n    mejor = 0\n    for i in range(len(prom)):\n        if prom[i] >= prom[mejor]:\n            mejor = i\n    return mejor", "def f6(prom):\n    mejor = 0\n    for i in range(len(prom)):\n        if prom[i] > prom[mejor]:\n            mejor = i\n    return prom[mejor]"],
             "tema": "el mayor sin max()",
         },
         {
             "codigo": "def f7(a, b):\n    cuenta = 0\n    for i in range(a):\n        for j in range(b):\n            cuenta += 1\n    return cuenta",
-            "args": ["3, 2", "2, 4", "4, 3", "1, 5"],
+            "args": ["3, 4", "2, 4", "4, 3", "1, 5"],
             "errores": ["def f7(a, b):\n    cuenta = 0\n    for i in range(a):\n        cuenta += 1\n    for j in range(b):\n        cuenta += 1\n    return cuenta", "def f7(a, b):\n    cuenta = 0\n    for i in range(a + 1):\n        for j in range(b + 1):\n            cuenta += 1\n    return cuenta"],
             "tema": "ciclo anidado",
         },
         {
             "codigo": "def f8(prom, i):\n    lugar = 1\n    for p in prom:\n        if p > prom[i]:\n            lugar += 1\n    return lugar",
-            "args": ["[90, 70, 90], 1", "[90, 70, 90], 0", "[60, 75, 88, 75], 1", "[85, 92, 70], 2"],
+            "args": ["[80, 65, 80], 1", "[80, 65, 80], 0", "[60, 75, 88, 75], 1", "[85, 92, 70], 2"],
             "errores": ["def f8(prom, i):\n    lugar = 1\n    for p in prom:\n        if p >= prom[i]:\n            lugar += 1\n    return lugar", "def f8(prom, i):\n    lugar = 0\n    for p in prom:\n        if p > prom[i]:\n            lugar += 1\n    return lugar"],
             "tema": "lugar en el grupo",
         },
         {
             "codigo": "def f9(nombres, prom, x):\n    pos = nombres.index(x)\n    nombres.pop(pos)\n    prom.pop(pos)\n    return prom",
-            "args": ['["Ana", "Javier", "Omar"], [92.5, 64.5, 84.0], "Javier"', '["Ana", "Javier", "Omar"], [92.5, 64.5, 84.0], "Ana"', '["Eva", "Luis", "Mar", "Ivo"], [70, 80, 90, 60], "Mar"'],
+            "args": ['["Luis", "Eva", "Mar"], [78.5, 91.0, 66.5], "Eva"', '["Luis", "Eva", "Mar"], [78.5, 91.0, 66.5], "Luis"', '["Eva", "Luis", "Mar", "Ivo"], [70, 80, 90, 60], "Mar"'],
             "errores": ["def f9(nombres, prom, x):\n    pos = nombres.index(x)\n    nombres.pop(pos)\n    prom.pop(0)\n    return prom", "def f9(nombres, prom, x):\n    pos = nombres.index(x)\n    nombres.pop(pos)\n    return prom", "def f9(nombres, prom, x):\n    pos = nombres.index(x)\n    prom.pop(pos + 1)\n    return prom"],
             "tema": "listas paralelas",
         },
         {
             "codigo": "def f10(entradas):\n    veces = 0\n    cal = -1\n    while cal < 0 or cal > 100:\n        cal = entradas[veces]\n        veces += 1\n    return veces",
-            "args": ["[120, -5, 85]", "[85]", "[-1, 101, 200, 100]", "[0, 50]"],
+            "args": ["[150, -2, 90]", "[85]", "[-1, 101, 200, 100]", "[0, 50]"],
             "errores": ["def f10(entradas):\n    veces = 0\n    cal = -1\n    while cal < 0 and cal > 100:\n        cal = entradas[veces]\n        veces += 1\n    return veces", "def f10(entradas):\n    veces = 0\n    cal = -1\n    while cal <= 0 or cal >= 100:\n        cal = entradas[veces]\n        veces += 1\n    return veces"],
             "tema": "validar con while",
         },
@@ -313,3 +313,32 @@ ARCHIVERO = [
     ("lugar", "def lugar(prom, i):\n    l = 1\n    for p in prom:\n        if p > prom[i]:\n            l += 1\n    return l"),
     ("agregar", "def agregar(nombres, prom, x, p):\n    nombres.append(x)\n    prom.append(p)\n    return len(nombres) - 1"),
 ]
+
+# ---------------------------------------------------------------------------
+# Calculadora humana: expresiones para evaluar a mano, paso a paso.
+# Las del examen van tal cual; las demás las arma generar.py al azar con estas plantillas
+# (a, b, c, d = números; x, y, z = variables con su valor). Python las evalúa y las que dan
+# decimales largos o números enormes se descartan.
+# ---------------------------------------------------------------------------
+
+EXPRESIONES_FIJAS = [
+    {"nivel": 3, "variables": {}, "expresion": "4 + 6 * 3 // 4 - 2 ** 3 / 8"},
+    {"nivel": 3, "variables": {"x": 7, "y": 2}, "expresion": "x // y + x % y"},
+]
+# Ejemplo resuelto del manual (no es del examen ni del test de antes y después).
+EJEMPLO_MANUAL = "3 + 4 * 2 ** 2 // 5 - 6 / 3"
+# Las preguntas del test de antes y después NO deben salir en el juego (si no, el test ya no mide).
+DEL_TEST = ["7 // 2 + 7 % 2", "2 + 3 * 4 ** 2 // 8"]
+# Llamadas del Intérprete con los mismos valores que el test (tampoco deben salir).
+DEL_TEST_LLAMADAS = {
+    "TC1037": ["f1(7, 2)", "f3(500)", "f5(15)", "f6(17, True)", "f8(3)"],
+    "TC1038": ["f1(5)", "f2(1)", "f3([4, 8, 15, 16])", "f4([92.5, 64.5, 84.0])", 'f5(["Ana", "Omar", "Ana"], "Ana")',
+               "f6([80, 95, 95, 70])", "f7(3, 2)", "f8([90, 70, 90], 1)", "f10([120, -5, 85])"],
+}
+
+PLANTILLAS = {
+    1: ["a + b * c", "a * b - c", "a - b + c * d", "a * b / c", "a + b / c", "a / b * c", "a * b + c * d"],
+    2: ["a // b + a % b", "a + b ** 2 // c", "a % b * c", "a ** 2 - b * c", "a + b * c // d", "a * b % c + d", "a // b * c - d % b"],
+    3: ["(a + b) * c // d", "a + b * c - d ** 2 / e", "(a - b) ** 2 % c", "x // y + x % y", "x % y * (x - y)",
+        "x ** 2 // y - z", "a + b * c > d", "x % 2 == 0", "(x + y) / 2 >= z", "a * b // c == d % e"],
+}

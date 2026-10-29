@@ -10,8 +10,8 @@
 // hoja, y el profesor los verifica. Si hay internet y una hoja configurada (js/config.js), además se
 // manda solo a Google Sheets. Lo que no se pudo mandar se guarda y se reintenta al abrir otro juego.
 
-const JUEGOS_MARCADOR = { 1: 'Arma el programa', 2: 'Intérprete humano', 3: 'El archivero' };
-const ID_JUEGO = { programa: 1, interprete: 2, archivero: 3 };
+const JUEGOS_MARCADOR = { 1: 'Arma el programa', 2: 'Intérprete humano', 3: 'El archivero', 4: 'Calculadora humana' };
+const ID_JUEGO = { programa: 1, interprete: 2, archivero: 3, calculadora: 4 };
 const LETRAS_CODIGO = '0123456789ABCDEFGHJKMNPQRSTVWXYZ'; // sin I, L, O ni U para no confundir
 
 /** Huella de 32 bits de un texto (FNV-1a). */

@@ -1,0 +1,70 @@
+<!doctype html><html lang='es'><head><meta charset='utf-8'><title>Manual · Calculadora humana</title><style>
+@page { size: letter; margin: 13mm; }
+* { box-sizing: border-box; }
+body { font-family: "Segoe UI", Arial, sans-serif; color: #15171a; font-size: 10.5pt; line-height: 1.4; margin: 0; }
+h1 { font-size: 21pt; margin: 0 0 1mm; color: #0B1F3A; }
+h2 { font-size: 13pt; margin: 5mm 0 2mm; color: #2F6FBF; }
+h3 { font-size: 11.5pt; margin: 0 0 1.5mm; color: #0B1F3A; }
+p { margin: 0 0 2mm; }
+ol, ul { margin: 0 0 2mm; padding-left: 6mm; }
+li { margin-bottom: 1mm; }
+.marca { display: inline-block; border: 1.5px solid #2F6FBF; color: #2F6FBF; border-radius: 4px; padding: 0 2mm; font-size: 8.5pt; font-weight: 600; letter-spacing: .5px; margin-bottom: 2mm; }
+.sub { color: #5b6270; margin-bottom: 4mm; }
+.aviso { border-left: 4px solid #2F6FBF; background: #EEF3FA; padding: 2.5mm 4mm; margin: 2mm 0 4mm; }
+.mono, pre, code { font-family: Consolas, "Courier New", monospace; }
+pre { margin: 0; white-space: pre; font-size: 9.6pt; line-height: 1.35; }
+.rejilla { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+.tarjeta { border: 1.2px solid #c9ced6; border-radius: 6px; padding: 3mm 3.5mm; break-inside: avoid; }
+.tarjeta .num { color: #2F6FBF; font-weight: 700; }
+.pasos { counter-reset: paso; list-style: none; padding: 0; margin: 1mm 0 2mm; }
+.pasos li { counter-increment: paso; font-family: Consolas, monospace; font-size: 9.6pt; white-space: pre; margin: 0 0 .6mm; }
+.pasos li::before { content: counter(paso) "  "; color: #8B95A7; }
+.consola { background: #0B1F3A; color: #E6EDF7; border-radius: 4px; padding: 2mm 3mm; }
+.etq { font-size: 8.5pt; font-weight: 600; color: #5b6270; letter-spacing: .4px; margin-top: 1.5mm; }
+.tema { color: #8B95A7; font-size: 8.5pt; }
+table { border-collapse: collapse; width: 100%; margin: 1mm 0 3mm; }
+th, td { border: 1px solid #c9ced6; padding: 1.4mm 2.2mm; text-align: left; vertical-align: top; }
+th { background: #eef1f5; }
+.tres { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; }
+.paso-grande { border: 1.2px solid #c9ced6; border-radius: 6px; padding: 3mm; }
+.paso-grande b { display: block; color: #2F6FBF; font-size: 15pt; }
+.pie { color: #5b6270; font-size: 8.5pt; margin-top: 3mm; }
+</style></head><body>
+<div class="marca">ENLACE VR · PYTHON · TC1037 · TC1038 · MANUAL DEL EQUIPO</div>
+<h1>Calculadora humana</h1>
+<div class="aviso">El Operador les dicta una expresión, por ejemplo <span class="mono">print(4 + 6 * 3 // 4 - 2 ** 3 / 8)</span>.
+Ustedes la escriben en la hoja de trabajo y le dicen <b>qué operación va primero</b> (él apunta a ese operador) y
+<b>cuánto da</b> (él lo escribe en el teclado). Paso a paso, hasta que quede un solo valor.
+Python es exacto: <span class="mono">7.0</span> no es lo mismo que <span class="mono">7</span>.</div>
+<div class="rejilla">
+<div>
+<h2>¿Qué va primero?</h2>
+<table>
+<tr><th>Orden</th><th>Operadores</th><th>Nota</th></tr>
+<tr><td>1</td><td class="mono">( )</td><td>lo de adentro primero</td></tr>
+<tr><td>2</td><td class="mono">**</td><td>potencia</td></tr>
+<tr><td>3</td><td class="mono">*  /  //  %</td><td>de izquierda a derecha</td></tr>
+<tr><td>4</td><td class="mono">+  -</td><td>de izquierda a derecha</td></tr>
+<tr><td>5</td><td class="mono">&gt;  &lt;  &gt;=  &lt;=  ==  !=</td><td>al final; dan True o False</td></tr>
+</table>
+<p class="pie">Si dos operaciones no dependen una de la otra, pueden ir en cualquier orden: el visor acepta cualquier
+operación que ya tenga sus dos números listos.</p>
+<h2>¿Entero o decimal?</h2>
+<table>
+<tr><td class="mono">/</td><td>siempre da decimal: <span class="mono">8 / 8 = 1.0</span></td></tr>
+<tr><td class="mono">//</td><td>divide y quita los decimales: <span class="mono">18 // 4 = 4</span></td></tr>
+<tr><td class="mono">%</td><td>el residuo: <span class="mono">7 % 2 = 1</span></td></tr>
+<tr><td class="mono">**</td><td>potencia: <span class="mono">2 ** 3 = 8</span></td></tr>
+<tr><td>mezcla</td><td>entero con decimal da decimal: <span class="mono">8 - 1.0 = 7.0</span></td></tr>
+</table>
+</div>
+<div>
+<h2>Ejemplo resuelto</h2>
+<p class="mono">print(3 + 4 * 2 ** 2 // 5 - 6 / 3)</p>
+<table><tr><th>Paso</th><th>Operación</th><th>Da</th></tr><tr><td class='mono'>1</td><td class='mono'>2 ** 2</td><td class='mono'><b>4</b></td></tr><tr><td class='mono'>2</td><td class='mono'>4 * 4</td><td class='mono'><b>16</b></td></tr><tr><td class='mono'>3</td><td class='mono'>16 // 5</td><td class='mono'><b>3</b></td></tr><tr><td class='mono'>4</td><td class='mono'>6 / 3</td><td class='mono'><b>2.0</b></td></tr><tr><td class='mono'>5</td><td class='mono'>3 + 3</td><td class='mono'><b>6</b></td></tr><tr><td class='mono'>6</td><td class='mono'>6 - 2.0</td><td class='mono'><b>4.0</b></td></tr></table>
+<p>Imprime: <span class="mono"><b>4.0</b></span></p>
+</div>
+</div>
+<h2>Hoja de trabajo</h2>
+<p>Expresión: _______________________________________________________________</p>
+<table><tr><th>Paso</th><th>Operación</th><th>Da</th></tr><tr><td class='mono' style='width:8mm'>1</td><td style='height:8.5mm'></td><td style='width:30mm'></td></tr><tr><td class='mono' style='width:8mm'>2</td><td style='height:8.5mm'></td><td style='width:30mm'></td></tr><tr><td class='mono' style='width:8mm'>3</td><td style='height:8.5mm'></td><td style='width:30mm'></td></tr><tr><td class='mono' style='width:8mm'>4</td><td style='height:8.5mm'></td><td style='width:30mm'></td></tr><tr><td class='mono' style='width:8mm'>5</td><td style='height:8.5mm'></td><td style='width:30mm'></td></tr><tr><td class='mono' style='width:8mm'>6</td><td style='height:8.5mm'></td><td style='width:30mm'></td></tr><tr><td class='mono' style='width:8mm'>7</td><td style='height:8.5mm'></td><td style='width:30mm'></td></tr><tr><td class='mono' style='width:8mm'>8</td><td style='height:8.5mm'></td><td style='width:30mm'></td></tr></table></body></html>

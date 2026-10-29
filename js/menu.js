@@ -10,6 +10,7 @@
 window.MINIJUEGOS = [
   { archivo: 'programa.html', area: 'TC1037 · TC1038', titulo: 'Arma el programa', texto: 'Las líneas de código flotan revueltas; el equipo tiene el pseudocódigo. Ármenlo con la sangría correcta.', nivel: 'Fácil · 5 min', voltear: true },
   { archivo: 'interprete.html', area: 'TC1037 · TC1038', titulo: 'Intérprete humano', texto: '¿Qué imprime print(f3(600))? El equipo sigue la función a mano y tú disparas a la respuesta.', nivel: 'Media · 5 min', voltear: false },
+  { archivo: 'calculadora.html', area: 'TC1037 · TC1038', titulo: 'Calculadora humana', texto: 'Dicten la expresión y resuélvanla a mano paso a paso: ¿qué va primero?, ¿cuánto da? (7.0 no es 7).', nivel: 'Media · 5 min', voltear: false },
   { archivo: 'archivero.html', area: 'TC1038 · listas', titulo: 'El archivero', texto: 'Las listas nombres y prom son cajas. Busquen, cuenten, eliminen… y vean cómo se recorren.', nivel: 'Media · 5 min', voltear: false },
 ];
 

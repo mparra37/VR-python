@@ -10,6 +10,7 @@ del equipo tiene el manual impreso. Solo hablando lo logran. Misma base que
 | Arma el programa | TC1037 y TC1038 | Líneas de código revueltas (con trampas) y un editor con renglones numerados | Pseudocódigo y ejemplo de ejecución de cada programa |
 | Intérprete humano | TC1037 y TC1038 | `print(f3(600))` y 4 puertas con respuestas | El código de 10 funciones numeradas |
 | El archivero | TC1038 | Las listas paralelas `nombres` y `prom` como cajas | Las funciones de Control Escolar (buscar, mejor, eliminar, lugar…) |
+| Calculadora humana | TC1037 y TC1038 | Una expresión como `print(4 + 6 * 3 // 4 - 2 ** 3 / 8)` y un teclado | La tabla de prioridad, reglas de entero/decimal y una hoja de trabajo: dicen qué va primero y cuánto da, paso a paso |
 
 ## Para empezar
 
@@ -29,7 +30,9 @@ python generador/generar.py
 El generador **ejecuta** cada programa y cada función en Python: comprueba la salida de los programas,
 calcula las respuestas correctas del Intérprete (y las falsas, corriendo versiones con errores típicos)
 y compara las respuestas de El archivero (`js/archivero_logica.js`, con Node) contra el mismo código en
-Python con 300 listas al azar. Luego escribe `js/datos_*.js` y los PDF (con Microsoft Edge).
+Python con 300 listas al azar. En la Calculadora, cada paso de cada expresión se evalúa con Python (módulo `ast`).
+Las preguntas del test de antes y después están prohibidas en los bancos (`DEL_TEST`, `DEL_TEST_LLAMADAS`): si alguna
+aparece, el generador se detiene. Luego escribe `js/datos_*.js` y los PDF (con Microsoft Edge).
 
 ## Probar en la computadora
 

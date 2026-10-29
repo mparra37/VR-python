@@ -58,44 +58,44 @@ Suma: 15</pre>
 <h3><span class="num">Programa 3</span> · Promedio del grupo</h3>
 <p>Calcula el promedio de una lista de promedios sin usar sum().</p>
 <div class="etq">PSEUDOCÓDIGO (en este orden)</div>
-<ol class="pasos"><li>Crea la lista prom con 92.5, 64.5 y 84.0.</li><li>Empieza el total en 0.</li><li>Para cada p en prom:</li><li>   súmale p al total.</li><li>Muestra total entre el tamaño de la lista, con 2 decimales.</li></ol>
+<ol class="pasos"><li>Crea la lista prom con 78.5, 91.0 y 66.5.</li><li>Empieza el total en 0.</li><li>Para cada p en prom:</li><li>   súmale p al total.</li><li>Muestra total entre el tamaño de la lista, con 2 decimales.</li></ol>
 <div class="etq">EJEMPLO DE EJECUCIÓN</div>
-<pre class="consola">80.33</pre>
+<pre class="consola">78.67</pre>
 </div><div class="tarjeta">
 <h3><span class="num">Programa 4</span> · Buscar alumno</h3>
 <p>La función buscar(nombres, x) regresa la posición de x en la lista, o -1 si no está.</p>
 <div class="etq">PSEUDOCÓDIGO (en este orden)</div>
-<ol class="pasos"><li>Define la función buscar con nombres y x:</li><li>   para cada posición i de la lista:</li><li>      si el nombre en i es x:</li><li>         regresa i.</li><li>   después del ciclo, regresa -1.</li><li>Muestra buscar de la lista Ana, Javier, Omar con Omar.</li></ol>
+<ol class="pasos"><li>Define la función buscar con nombres y x:</li><li>   para cada posición i de la lista:</li><li>      si el nombre en i es x:</li><li>         regresa i.</li><li>   después del ciclo, regresa -1.</li><li>Muestra buscar de la lista Luis, Eva, Mar con Mar.</li></ol>
 <div class="etq">EJEMPLO DE EJECUCIÓN</div>
 <pre class="consola">2</pre>
 </div><div class="tarjeta">
 <h3><span class="num">Programa 5</span> · Lista de aprobados</h3>
 <p>Con dos listas paralelas, arma una lista nueva con los nombres de quienes tienen 70 o más.</p>
 <div class="etq">PSEUDOCÓDIGO (en este orden)</div>
-<ol class="pasos"><li>Crea la lista nombres: Ana, Javier, Omar.</li><li>Crea la lista prom: 92.5, 64.5, 84.0.</li><li>Empieza aprobados como lista vacía.</li><li>Para cada posición i:</li><li>   si el promedio en i es 70 o más:</li><li>      agrega el NOMBRE en i a aprobados.</li><li>Muestra aprobados y cuántos son.</li></ol>
+<ol class="pasos"><li>Crea la lista nombres: Luis, Eva, Mar.</li><li>Crea la lista prom: 78.5, 91.0, 66.5.</li><li>Empieza aprobados como lista vacía.</li><li>Para cada posición i:</li><li>   si el promedio en i es 70 o más:</li><li>      agrega el NOMBRE en i a aprobados.</li><li>Muestra aprobados y cuántos son.</li></ol>
 <div class="etq">EJEMPLO DE EJECUCIÓN</div>
-<pre class="consola">[&#x27;Ana&#x27;, &#x27;Omar&#x27;] 2</pre>
+<pre class="consola">[&#x27;Luis&#x27;, &#x27;Eva&#x27;] 2</pre>
 </div><div class="tarjeta">
 <h3><span class="num">Programa 6</span> · Mejor promedio</h3>
 <p>Encuentra al alumno con el promedio más alto sin usar max(). Si hay empate, gana el primero.</p>
 <div class="etq">PSEUDOCÓDIGO (en este orden)</div>
-<ol class="pasos"><li>Crea la lista nombres: Ana, Javier, Omar.</li><li>Crea la lista prom: 92.5, 64.5, 84.0.</li><li>El mejor empieza en la posición 0.</li><li>Para cada posición i desde la 1:</li><li>   si el promedio en i es MAYOR que el del mejor:</li><li>      el mejor ahora es i.</li><li>Muestra el nombre y el promedio del mejor.</li></ol>
+<ol class="pasos"><li>Crea la lista nombres: Luis, Eva, Mar.</li><li>Crea la lista prom: 78.5, 91.0, 66.5.</li><li>El mejor empieza en la posición 0.</li><li>Para cada posición i desde la 1:</li><li>   si el promedio en i es MAYOR que el del mejor:</li><li>      el mejor ahora es i.</li><li>Muestra el nombre y el promedio del mejor.</li></ol>
 <div class="etq">EJEMPLO DE EJECUCIÓN</div>
-<pre class="consola">Ana con 92.5</pre>
+<pre class="consola">Eva con 91.0</pre>
 </div><div class="tarjeta">
 <h3><span class="num">Programa 7</span> · Eliminar alumno</h3>
-<p>Quita a Javier de las dos listas paralelas para que sigan alineadas.</p>
+<p>Quita a Eva de las dos listas paralelas para que sigan alineadas.</p>
 <div class="etq">PSEUDOCÓDIGO (en este orden)</div>
-<ol class="pasos"><li>Crea la lista nombres: Ana, Javier, Omar.</li><li>Crea la lista prom: 92.5, 64.5, 84.0.</li><li>Busca la posición de Javier en nombres.</li><li>Quita esa posición de nombres.</li><li>Quita la MISMA posición de prom.</li><li>Muestra las dos listas.</li></ol>
+<ol class="pasos"><li>Crea la lista nombres: Luis, Eva, Mar.</li><li>Crea la lista prom: 78.5, 91.0, 66.5.</li><li>Busca la posición de Eva en nombres.</li><li>Quita esa posición de nombres.</li><li>Quita la MISMA posición de prom.</li><li>Muestra las dos listas.</li></ol>
 <div class="etq">EJEMPLO DE EJECUCIÓN</div>
-<pre class="consola">[&#x27;Ana&#x27;, &#x27;Omar&#x27;] [92.5, 84.0]</pre>
+<pre class="consola">[&#x27;Luis&#x27;, &#x27;Mar&#x27;] [78.5, 66.5]</pre>
 </div><div class="tarjeta">
 <h3><span class="num">Programa 8</span> · Lugar en el grupo</h3>
 <p>El lugar de cada alumno es 1 más cuántos tienen un promedio mayor. Sin ordenar las listas (ciclo anidado).</p>
 <div class="etq">PSEUDOCÓDIGO (en este orden)</div>
-<ol class="pasos"><li>Crea la lista nombres: Ana, Javier, Omar.</li><li>Crea la lista prom: 92.5, 64.5, 84.0.</li><li>Para cada alumno i:</li><li>   su lugar empieza en 1.</li><li>   para cada alumno j:</li><li>      si el promedio de j es mayor que el de i:</li><li>         súmale 1 al lugar.</li><li>   muestra el nombre de i y su lugar.</li></ol>
+<ol class="pasos"><li>Crea la lista nombres: Luis, Eva, Mar.</li><li>Crea la lista prom: 78.5, 91.0, 66.5.</li><li>Para cada alumno i:</li><li>   su lugar empieza en 1.</li><li>   para cada alumno j:</li><li>      si el promedio de j es mayor que el de i:</li><li>         súmale 1 al lugar.</li><li>   muestra el nombre de i y su lugar.</li></ol>
 <div class="etq">EJEMPLO DE EJECUCIÓN</div>
-<pre class="consola">Ana - lugar 1
-Javier - lugar 3
-Omar - lugar 2</pre>
+<pre class="consola">Luis - lugar 2
+Eva - lugar 1
+Mar - lugar 3</pre>
 </div></div></body></html>

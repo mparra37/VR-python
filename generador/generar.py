@@ -11,17 +11,19 @@
 
 Uso:  python generador/generar.py          (Edge convierte a PDF; si falla, vuelve a correrlo)
 """
+import ast
 import contextlib
 import html
 import io
 import json
 import math
+import random
 import pathlib
 import subprocess
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from bancos import ARCHIVERO, FUNCIONES, PROGRAMAS  # noqa: E402
+from bancos import ARCHIVERO, DEL_TEST, DEL_TEST_LLAMADAS, EJEMPLO_MANUAL, EXPRESIONES_FIJAS, FUNCIONES, PLANTILLAS, PROGRAMAS  # noqa: E402
 
 RAIZ = pathlib.Path(__file__).resolve().parent.parent
 MATERIAL = RAIZ / "material"
@@ -112,6 +114,7 @@ def comprobar_funciones():
             datos[curso]["funciones"].append({"id": n, "codigo": f["codigo"], "tema": f["tema"]})
             for args in f["args"]:
                 llamada = f"{nombre}({args})"
+                assert llamada not in DEL_TEST_LLAMADAS.get(curso, []), f"{curso} {llamada} es una pregunta del test de antes y después"
                 correcta = imprimir_llamada(f["codigo"], llamada)
                 assert correcta is not None, f"{curso} {llamada} truena"
                 falsas = []
@@ -151,6 +154,125 @@ def comprobar_archivero():
         assert len(set(caso["falsas"])) == 3, f"respuestas falsas repetidas: {caso}"
     assert malos == 0, f"{malos} de {len(casos)} respuestas del archivero no coinciden con Python"
     return {"funciones": [{"nombre": n, "codigo": c} for n, c in ARCHIVERO]}
+
+
+# ---------- Calculadora humana ----------
+
+OPERADORES = {ast.Add: "+", ast.Sub: "-", ast.Mult: "*", ast.Div: "/", ast.FloorDiv: "//", ast.Mod: "%", ast.Pow: "**",
+              ast.Gt: ">", ast.Lt: "<", ast.GtE: ">=", ast.LtE: "<=", ast.Eq: "==", ast.NotEq: "!="}
+
+
+def valor_ok(v):
+    """Valores que se pueden calcular a mano: enteros chicos o decimales cortos."""
+    if isinstance(v, bool):
+        return True
+    if isinstance(v, int):
+        return -999 <= v <= 9999
+    texto = str(v)
+    return "e" not in texto and len(texto.split(".")[1]) <= 2 and abs(v) < 10000
+
+
+def arbol(nodo, fuente, variables):
+    """El árbol de la expresión. Cada operación guarda lo que Python imprime al evaluarla sola."""
+    if isinstance(nodo, ast.Constant):
+        return {"hoja": repr(nodo.value)}
+    if isinstance(nodo, ast.Name):
+        return {"hoja": nodo.id}
+    if isinstance(nodo, ast.BinOp):
+        izq, op, der = nodo.left, OPERADORES[type(nodo.op)], nodo.right
+    elif isinstance(nodo, ast.Compare) and len(nodo.ops) == 1:
+        izq, op, der = nodo.left, OPERADORES[type(nodo.ops[0])], nodo.comparators[0]
+    else:
+        raise ValueError(f"operación no soportada: {ast.dump(nodo)}")
+    trozo = fuente[nodo.col_offset:nodo.end_col_offset]
+    valor = eval(trozo, {"__builtins__": {}}, dict(variables))  # noqa: S307 - expresiones nuestras
+    if not valor_ok(valor):
+        raise ValueError(f"{trozo} = {valor}")
+    parentesis = (nodo.col_offset > 0 and fuente[nodo.col_offset - 1] == "("
+                  and fuente[nodo.end_col_offset:nodo.end_col_offset + 1] == ")")
+    return {"op": op, "izq": arbol(izq, fuente, variables), "der": arbol(der, fuente, variables),
+            "valor": str(valor), "parentesis": parentesis}
+
+
+PRIORIDAD = {"**": 3, "*": 2, "/": 2, "//": 2, "%": 2, "+": 1, "-": 1}
+
+
+def pasos_canonicos(a):
+    """Pasos en el orden de clase: primero lo de mayor prioridad y, si empatan, el de más a la izquierda."""
+    hechos = set()
+
+    def listos(x):
+        return "hoja" in x or id(x) in hechos
+
+    def en_orden(x):
+        return [] if "hoja" in x else en_orden(x["izq"]) + [x] + en_orden(x["der"])
+
+    pasos = []
+    while not listos(a):
+        candidatos = [x for x in en_orden(a) if id(x) not in hechos and listos(x["izq"]) and listos(x["der"])]
+        mejor = max(candidatos, key=lambda x: PRIORIDAD.get(x["op"], 0))
+        pasos.append({"op": mejor["op"], "valor": mejor["valor"],
+                      "izq": mejor["izq"] if "hoja" in mejor["izq"] else {"hoja": mejor["izq"]["valor"]},
+                      "der": mejor["der"] if "hoja" in mejor["der"] else {"hoja": mejor["der"]["valor"]}})
+        hechos.add(id(mejor))
+    return pasos
+
+
+def texto_operacion(a):
+    def lado(x):
+        v = x["hoja"] if "hoja" in x else x["valor"]
+        return f"({v})" if v.startswith("-") else v
+    return f"{lado(a['izq'])} {a['op']} {lado(a['der'])}"
+
+
+def expresion(fuente, variables, nivel):
+    a = arbol(ast.parse(fuente, mode="eval").body, fuente, variables)
+    final = str(eval(fuente, {"__builtins__": {}}, dict(variables)))  # noqa: S307
+    assert final == a["valor"], f"{fuente}: el árbol no coincide con Python"
+    # lo que imprime el programa completo, corrido de verdad
+    programa = "".join(f"{k} = {v}\n" for k, v in variables.items()) + f"print({fuente})"
+    assert correr_programa([programa], []).strip() == final, f"{fuente}: print no coincide"
+    return {"nivel": nivel, "variables": variables, "expresion": fuente, "arbol": a, "final": final}
+
+
+def generar_expresiones(por_nivel=30, semilla=2026):
+    azar = random.Random(semilla)
+    lista = [expresion(e["expresion"], e["variables"], e["nivel"]) for e in EXPRESIONES_FIJAS]
+    vistas = {e["expresion"] + str(e["variables"]) for e in lista}
+    prohibidas = {" ".join(t.split()) for t in DEL_TEST}
+    for nivel, plantillas in PLANTILLAS.items():
+        hechas = 0
+        intentos = 0
+        while hechas < por_nivel:
+            intentos += 1
+            assert intentos < 50000, f"nivel {nivel}: no salen suficientes expresiones"
+            plantilla = azar.choice(plantillas)
+            texto = plantilla
+            for letra in "abcde":
+                if letra in plantilla:
+                    # después de ** el exponente es 2 o 3; antes, la base hasta 6
+                    i = texto.index(letra)
+                    if texto[max(0, i - 3):i] == "** ":
+                        numero = azar.choice([2, 3])
+                    elif texto[i + 1:i + 4] == " **":
+                        numero = azar.randint(2, 6)
+                    else:
+                        numero = azar.randint(2, 9 if nivel == 1 else 12)
+                    texto = texto.replace(letra, str(numero))  # la misma letra, el mismo número
+            variables = {letra: azar.randint(2, 20) for letra in "xyz" if letra in plantilla}
+            try:
+                e = expresion(texto, variables, nivel)
+            except (ValueError, ZeroDivisionError, AssertionError):
+                continue
+            clave = texto + str(variables)
+            if " ".join(texto.split()) in prohibidas:
+                continue
+            if clave in vistas or (e["final"] in ("0", "0.0") and azar.random() < 0.7):
+                continue
+            vistas.add(clave)
+            lista.append(e)
+            hechas += 1
+    return lista
 
 
 # ---------- 2. datos para el visor ----------
@@ -258,6 +380,51 @@ la respuesta. No se usan <span class="mono">sum()</span>, <span class="mono">max
 <span class="mono">nombres</span> es el mismo alumno que la posición i de <span class="mono">prom</span>.</p>""")
 
 
+def manual_calculadora(ejemplo):
+    pasos = "".join(f"<tr><td class='mono'>{i}</td><td class='mono'>{esc(texto_operacion(p))}</td><td class='mono'><b>{esc(p['valor'])}</b></td></tr>"
+                    for i, p in enumerate(pasos_canonicos(ejemplo["arbol"]), 1))
+    hoja = "".join(f"<tr><td class='mono' style='width:8mm'>{i}</td><td style='height:8.5mm'></td><td style='width:30mm'></td></tr>" for i in range(1, 9))
+    return pagina("Manual · Calculadora humana", f"""
+<div class="marca">ENLACE VR · PYTHON · TC1037 · TC1038 · MANUAL DEL EQUIPO</div>
+<h1>Calculadora humana</h1>
+<div class="aviso">El Operador les dicta una expresión, por ejemplo <span class="mono">print(4 + 6 * 3 // 4 - 2 ** 3 / 8)</span>.
+Ustedes la escriben en la hoja de trabajo y le dicen <b>qué operación va primero</b> (él apunta a ese operador) y
+<b>cuánto da</b> (él lo escribe en el teclado). Paso a paso, hasta que quede un solo valor.
+Python es exacto: <span class="mono">7.0</span> no es lo mismo que <span class="mono">7</span>.</div>
+<div class="rejilla">
+<div>
+<h2>¿Qué va primero?</h2>
+<table>
+<tr><th>Orden</th><th>Operadores</th><th>Nota</th></tr>
+<tr><td>1</td><td class="mono">( )</td><td>lo de adentro primero</td></tr>
+<tr><td>2</td><td class="mono">**</td><td>potencia</td></tr>
+<tr><td>3</td><td class="mono">*  /  //  %</td><td>de izquierda a derecha</td></tr>
+<tr><td>4</td><td class="mono">+  -</td><td>de izquierda a derecha</td></tr>
+<tr><td>5</td><td class="mono">&gt;  &lt;  &gt;=  &lt;=  ==  !=</td><td>al final; dan True o False</td></tr>
+</table>
+<p class="pie">Si dos operaciones no dependen una de la otra, pueden ir en cualquier orden: el visor acepta cualquier
+operación que ya tenga sus dos números listos.</p>
+<h2>¿Entero o decimal?</h2>
+<table>
+<tr><td class="mono">/</td><td>siempre da decimal: <span class="mono">8 / 8 = 1.0</span></td></tr>
+<tr><td class="mono">//</td><td>divide y quita los decimales: <span class="mono">18 // 4 = 4</span></td></tr>
+<tr><td class="mono">%</td><td>el residuo: <span class="mono">7 % 2 = 1</span></td></tr>
+<tr><td class="mono">**</td><td>potencia: <span class="mono">2 ** 3 = 8</span></td></tr>
+<tr><td>mezcla</td><td>entero con decimal da decimal: <span class="mono">8 - 1.0 = 7.0</span></td></tr>
+</table>
+</div>
+<div>
+<h2>Ejemplo resuelto</h2>
+<p class="mono">print({esc(ejemplo['expresion'])})</p>
+<table><tr><th>Paso</th><th>Operación</th><th>Da</th></tr>{pasos}</table>
+<p>Imprime: <span class="mono"><b>{esc(ejemplo['final'])}</b></span></p>
+</div>
+</div>
+<h2>Hoja de trabajo</h2>
+<p>Expresión: _______________________________________________________________</p>
+<table><tr><th>Paso</th><th>Operación</th><th>Da</th></tr>{hoja}</table>""")
+
+
 INSTRUCTIVOS = {
     "programa": ("Arma el programa", "TC1037 y TC1038", "Orden de un programa, sangría, EPS, if/else, funciones (TC1037); ciclos y listas (TC1038).",
                  ["El Operador dice el <b>número de programa</b>, voltea, toma una línea de código y la <b>lee en voz alta</b> (con o sin sangría).",
@@ -267,6 +434,11 @@ INSTRUCTIVOS = {
                    ["El Operador lee la instrucción, por ejemplo <span class='mono'>print(f3(600))</span>.",
                     "El equipo busca la función 3, la sigue a mano y dice exactamente qué imprime Python.",
                     "El Operador dispara a la puerta con esa respuesta. Al acertar, el visor muestra el código de la función."]),
+    "calculadora": ("Calculadora humana", "TC1037 y TC1038",
+                    "Precedencia de operadores, / contra //, %, **, entero contra decimal y comparaciones (como la evaluación de expresiones del examen).",
+                    ["El Operador dicta la expresión, por ejemplo <span class='mono'>print(4 + 6 * 3 // 4 - 2 ** 3 / 8)</span>, y el equipo la escribe en su hoja.",
+                     "El equipo dice qué operación va primero; el Operador apunta a ese operador. Luego la calculan a mano y el Operador escribe cuánto da.",
+                     "La expresión se reduce hasta un solo valor. +1 por cada paso bien hecho. Ojo: <span class='mono'>7.0</span> no es <span class='mono'>7</span>."]),
     "archivero": ("El archivero", "TC1038", "Listas paralelas, índices, recorrer con for, buscar, contar, el mayor sin max(), eliminar y agregar.",
                   ["El Operador lee la pregunta (por ejemplo <span class='mono'>print(mejor(nombres, prom))</span>) y ve las listas como cajas.",
                    "El equipo, con el código, le pide los datos por posición y sigue la función a mano.",
@@ -330,6 +502,9 @@ def main():
     programas = comprobar_programas()
     interprete = comprobar_funciones()
     archivero = comprobar_archivero()
+    expresiones = generar_expresiones()
+    print(f"comprobado: {len(expresiones)} expresiones de la calculadora (cada paso evaluado en Python)")
+    exportar("datos_calculadora.js", "CALCULADORA", expresiones)
     total = sum(len(v["retos"]) for v in interprete.values())
     print(f"comprobado: {sum(len(v) for v in programas.values())} programas, {total} preguntas del intérprete, archivero = Python")
     exportar("datos_programa.js", "PROGRAMAS", programas)
@@ -340,7 +515,8 @@ def main():
         guardar(f"Manual_Arma_el_programa_{curso}", manual_programa(curso, programas[curso]), pdf)
         guardar(f"Manual_Interprete_humano_{curso}", manual_interprete(curso, interprete[curso]), pdf)
     guardar("Manual_El_archivero_TC1038", manual_archivero(archivero), pdf)
-    for clave, nombre in [("programa", "Arma_el_programa"), ("interprete", "Interprete_humano"), ("archivero", "El_archivero")]:
+    guardar("Manual_Calculadora_humana", manual_calculadora(expresion(EJEMPLO_MANUAL, {}, 3)), pdf)
+    for clave, nombre in [("programa", "Arma_el_programa"), ("interprete", "Interprete_humano"), ("archivero", "El_archivero"), ("calculadora", "Calculadora_humana")]:
         guardar(f"Instructivo_{nombre}", instructivo(clave), pdf)
 
 
