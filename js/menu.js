@@ -5,14 +5,13 @@
  * - el menú 3D dentro del visor (se elige con el láser del control)
  * Para agregar un juego nuevo, basta con agregarlo a MINIJUEGOS.
  */
-/* global AFRAME, COLOR, MONO, texto, rectRedondo, pintar, sonido, crearEntidad, refrescarApuntadores, dibujarLogo, marcador, musica, curso */
+/* global AFRAME, COLOR, MONO, texto, rectRedondo, pintar, sonido, crearEntidad, refrescarApuntadores, dibujarLogo, marcador, musica */
 
 window.MINIJUEGOS = [
-  { archivo: 'programa.html', area: 'TC1037 · TC1038', titulo: 'Arma el programa', texto: 'Las líneas de código flotan revueltas; el equipo tiene el pseudocódigo. Ármenlo con la sangría correcta.', nivel: 'Fácil · 5 min', voltear: true },
-  { archivo: 'interprete.html', area: 'TC1037 · TC1038', titulo: 'Intérprete humano', texto: '¿Qué imprime print(f3(600))? El equipo sigue la función a mano y tú disparas a la respuesta.', nivel: 'Media · 5 min', voltear: false },
-  { archivo: 'maquinas.html', area: 'TC1037 · funciones', titulo: 'La máquina de funciones', texto: '¿Qué recibe cada parámetro? ¿Qué regresa? ¿Qué sale en la pantalla? print no es return.', nivel: 'Fácil · 5 min', voltear: true },
-  { archivo: 'calculadora.html', area: 'TC1037 · TC1038', titulo: 'Calculadora humana', texto: 'Dicten la expresión y resuélvanla a mano paso a paso: ¿qué va primero?, ¿cuánto da? (7.0 no es 7).', nivel: 'Media · 5 min', voltear: false },
-  { archivo: 'archivero.html', area: 'TC1038 · listas', titulo: 'El archivero', texto: 'Las listas nombres y prom son cajas. Busquen, cuenten, eliminen… y vean cómo se recorren.', nivel: 'Media · 5 min', voltear: false },
+  { archivo: 'calculadora.html', area: 'operadores', titulo: 'Calculadora humana', texto: 'Resuelve la expresión y escribe el resultado. Con 2 correctas: ¡siguiente!, pasa el visor.', nivel: 'Fácil · 5 min' },
+  { archivo: 'interprete.html', area: 'funciones · // % / **', titulo: 'Intérprete humano', texto: '¿Qué imprime print(f3(9, 2))? El equipo sigue la función a mano y tú disparas a la respuesta.', nivel: 'Media · 5 min' },
+  { archivo: 'cadenero.html', area: 'and · or · not', titulo: 'El cadenero', texto: 'Tú ves los valores: entra(18, 1.60). El equipo tiene la función. ¿Regresa True o False?', nivel: 'Fácil · 5 min' },
+  { archivo: 'archivero.html', area: 'listas', titulo: 'El archivero', texto: 'Las listas son cajas. El equipo lee f3(nombres) en su hoja y te dice cuál caja tocar.', nivel: 'Fácil · 5 min' },
 ];
 
 /** Ir a un juego (o al menú). Si está en VR, el visor sale de la sesión y la nueva página vuelve a entrar. */
@@ -27,7 +26,7 @@ function dibujarMenuWeb(contenedor) {
       <span class="area"><b>${String(i + 1).padStart(2, '0')}</b> · ${j.area}</span>
       <h2>${j.titulo}</h2>
       <p>${j.texto}</p>
-      <span class="pie"><span>Dificultad: ${j.nivel}</span><span>${j.voltear ? 'Hay que voltear' : 'Todo enfrente'}</span></span>
+      <span class="pie"><span>Dificultad: ${j.nivel}</span><span>Ronda de 5 min</span></span>
     </a>`).join('');
 }
 
@@ -51,7 +50,7 @@ AFRAME.registerComponent('menu-juegos', {
     });
 
     this.cargando = crearEntidad(panel, { lienzo: 'ancho: 2; alto: 0.12', position: '0 -0.79 0' });
-    this.dibujarPie('Abajo: equipo y curso de este visor  ·  Apunta a un juego y presiona el gatillo');
+    this.dibujarPie('Abajo: equipo de este visor  ·  Apunta a un juego y presiona el gatillo');
 
     // tarjetas en 2 columnas; el alto se ajusta a cuántos juegos haya (si sobra uno, va al centro)
     const total = window.MINIJUEGOS.length;
@@ -76,7 +75,6 @@ AFRAME.registerComponent('menu-juegos', {
         ctx.fillStyle = 'rgba(242,244,248,.12)';
         ctx.fillRect(40, h * 0.76, w - 80, 2);
         texto(ctx, `Dificultad: ${j.nivel}`, 40, h * 0.87, { tam: 26, peso: 500, color: COLOR.tenue });
-        texto(ctx, j.voltear ? 'Hay que voltear' : 'Todo enfrente', w - 40, h * 0.87, { tam: 26, peso: 500, color: COLOR.tenue, alinear: 'right' });
       });
       dibujar(false);
       tarjeta.addEventListener('mouseenter', () => dibujar(true));
@@ -95,7 +93,6 @@ AFRAME.registerComponent('menu-juegos', {
       const b = crearEntidad(tira, { position: `${-0.96 + (n - 1) * 0.13} 0 0`, class: 'clickable', boton: { texto: `Eq. ${n}`, ancho: 0.12, alto: 0.12, accion: 'equipo', valor: String(n), elegido: marcador.equipo() === n } });
       this.botonesEquipo.push(b);
     }
-    this.botonesCurso = ['TC1037', 'TC1038'].map((c, i) => crearEntidad(tira, { position: `${0.18 + i * 0.25} 0 0`, class: 'clickable', boton: { texto: c, ancho: 0.24, alto: 0.12, accion: 'curso', valor: c, elegido: curso.actual() === c } }));
     this.botonMusica = crearEntidad(tira, { position: '0.86 0 0', class: 'clickable', boton: { texto: musica.encendida() ? 'Música: sí' : 'Música: no', ancho: 0.24, alto: 0.12, accion: 'musica' } });
     this.el.sceneEl.addEventListener('boton-presionado', (e) => {
       const { accion, valor } = e.detail;
@@ -105,12 +102,6 @@ AFRAME.registerComponent('menu-juegos', {
         sonido.bien();
         this.dibujarPie(`Listo: este visor es del equipo ${valor}`);
         document.dispatchEvent(new CustomEvent('enlace-equipo'));
-      } else if (accion === 'curso') {
-        curso.poner(valor);
-        this.botonesCurso.forEach((b) => b.setAttribute('boton', 'elegido', b.getAttribute('boton').valor === valor));
-        sonido.bien();
-        this.dibujarPie(`Listo: este visor juega el curso ${valor}`);
-        document.dispatchEvent(new CustomEvent('enlace-curso'));
       } else if (accion === 'musica') {
         musica.ponerEncendida(!musica.encendida());
         this.botonMusica.setAttribute('boton', 'texto', musica.encendida() ? 'Música: sí' : 'Música: no');

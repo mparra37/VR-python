@@ -792,17 +792,7 @@ const rondaComun = {
   terminar() { musica.detener(); },
 };
 
-// ---------- Python: curso del visor y código con colores ----------
-
-/** Curso de este visor (se elige en el menú y se guarda en el visor). */
-const curso = {
-  actual() {
-    try { return localStorage.getItem('enlace-curso') === 'TC1038' ? 'TC1038' : 'TC1037'; } catch (e) { return 'TC1037'; }
-  },
-  poner(c) {
-    try { localStorage.setItem('enlace-curso', c); } catch (e) { /* sin almacenamiento */ }
-  },
-};
+// ---------- Python: código con colores ----------
 
 const PALABRAS_PY = new Set(['def', 'return', 'if', 'elif', 'else', 'for', 'in', 'while', 'import', 'and', 'or', 'not', 'True', 'False', 'None', 'print', 'input', 'range', 'len', 'int', 'float', 'round']);
 const COLOR_PY = { clave: '#5AA9FF', funcion: '#9DB8FF', texto: '#7FD1C7', numero: '#F2C14E', normal: '#F2F4F8', guia: 'rgba(242,244,248,.22)' };

@@ -1,6 +1,6 @@
 /* Enlace VR · Python · Intérprete humano
  *
- * El Operador ve una instrucción como print(f3(600)) y, enfrente, 4 puertas con respuestas posibles.
+ * El Operador ve una instrucción como print(f3(9, 2)) y, enfrente, 4 puertas con respuestas posibles.
  * El equipo tiene el código de las funciones en su manual: la sigue a mano con esos valores y le dice
  * qué imprime Python. El Operador dispara a esa puerta. Al acertar (o fallar) se muestra el código de
  * la función y la respuesta correcta, para que todos vean por qué.
@@ -9,7 +9,7 @@
  * Datos: js/datos_interprete.js (lo genera generador/generar.py ejecutando cada llamada en Python;
  * las respuestas falsas salen de versiones de la función con un error típico).
  */
-/* global AFRAME, THREE, COLOR, MONO, texto, fondoPanel, minutos, pintar, rectRedondo, sonido, crearEntidad, refrescarApuntadores, crearConsola, irA, marcador, rondaComun, dibujarFinalRonda, curso, pintarPython, pintarBloque */
+/* global AFRAME, THREE, COLOR, MONO, texto, fondoPanel, minutos, pintar, rectRedondo, sonido, crearEntidad, refrescarApuntadores, crearConsola, irA, marcador, rondaComun, dibujarFinalRonda, pintarPython, pintarBloque */
 
 const CONFIG = {
   segundosRonda: 300,
@@ -26,8 +26,7 @@ const LETRAS = ['A', 'B', 'C', 'D'];
 
 AFRAME.registerComponent('interprete-humano', {
   init() {
-    this.curso = curso.actual();
-    this.datos = window.INTERPRETE[this.curso];
+    this.datos = window.INTERPRETE;
     this.pantalla = '';
     this.pantallas = {};
     this.botones = { inicio: [], juego: [], fin: [] };
@@ -199,7 +198,7 @@ AFRAME.registerComponent('interprete-humano', {
     rondaComun.terminar();
     this.explicacion = null;
     this.registro = this.modo === 'ronda'
-      ? marcador.registrar('interprete', this.puntaje, `${this.curso} · errores ${this.errores} · saltadas ${this.saltados}`, () => this.dibujarResultado())
+      ? marcador.registrar('interprete', this.puntaje, `errores ${this.errores} · saltadas ${this.saltados}`, () => this.dibujarResultado())
       : null;
     this.dibujarResultado();
     this.mostrar('fin');
@@ -259,10 +258,10 @@ AFRAME.registerComponent('interprete-humano', {
 
   dibujarInicio() {
     pintar(this.lienzoTitulo, (ctx, w, h) => {
-      texto(ctx, `ENLACE VR · PYTHON · CURSO ${this.curso}`, w / 2, h * 0.08, { tam: 34, color: COLOR.acento, peso: 600, alinear: 'center' });
+      texto(ctx, 'ENLACE VR · PYTHON', w / 2, h * 0.08, { tam: 34, color: COLOR.acento, peso: 600, alinear: 'center' });
       texto(ctx, 'Intérprete humano', w / 2, h * 0.25, { tam: 92, peso: 700, alinear: 'center' });
       texto(ctx, 'Tú ves la instrucción; el equipo tiene el código de las funciones.', w / 2, h * 0.43, { tam: 36, color: COLOR.tenue, alinear: 'center' });
-      ['1. Lee la instrucción en voz alta: print(f3(600)).', '2. El equipo sigue la función y te dice qué imprime.', '3. Dispárale a esa puerta (A, B, C o D).']
+      ['1. Lee la instrucción en voz alta: print(f3(9, 2)).', '2. El equipo sigue la función y te dice qué imprime.', '3. Dispárale a esa puerta (A, B, C o D).']
         .forEach((p, i) => texto(ctx, p, w * 0.1, h * (0.58 + i * 0.13), { tam: 40, peso: 500 }));
     });
     pintar(this.lienzoSeguridad, (ctx, w, h) => {
@@ -274,7 +273,7 @@ AFRAME.registerComponent('interprete-humano', {
   dibujarBarra() {
     pintar(this.lienzoBarra, (ctx, w, h) => {
       fondoPanel(ctx, w, h);
-      texto(ctx, `INTÉRPRETE HUMANO · ${this.curso}`, 30, h / 2, { tam: 40, peso: 700 });
+      texto(ctx, 'INTÉRPRETE HUMANO', 30, h / 2, { tam: 40, peso: 700 });
       texto(ctx, `Aciertos: ${this.puntaje}`, w * 0.68, h / 2, { tam: 44, peso: 700, alinear: 'center' });
       if (this.modo === 'practica') {
         texto(ctx, 'PRÁCTICA', w - 30, h / 2, { tam: 42, peso: 700, color: COLOR.acento, alinear: 'right' });
@@ -328,7 +327,7 @@ AFRAME.registerComponent('interprete-humano', {
       practica: this.modo === 'practica',
       puntaje: this.puntaje,
       unidad: this.puntaje === 1 ? 'respuesta correcta' : 'respuestas correctas',
-      detalle: `Curso ${this.curso} · Errores: ${this.errores} · Saltadas: ${this.saltados}`,
+      detalle: `Errores: ${this.errores} · Saltadas: ${this.saltados}`,
       registro: this.registro,
     }));
   },

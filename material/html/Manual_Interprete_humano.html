@@ -1,0 +1,66 @@
+<!doctype html><html lang='es'><head><meta charset='utf-8'><title>Manual · Intérprete humano</title><style>
+@page { size: letter; margin: 13mm; }
+* { box-sizing: border-box; }
+body { font-family: "Segoe UI", Arial, sans-serif; color: #15171a; font-size: 10.5pt; line-height: 1.4; margin: 0; }
+h1 { font-size: 21pt; margin: 0 0 1mm; color: #0B1F3A; }
+h2 { font-size: 13pt; margin: 5mm 0 2mm; color: #2F6FBF; }
+h3 { font-size: 11.5pt; margin: 0 0 1.5mm; color: #0B1F3A; }
+p { margin: 0 0 2mm; }
+ol, ul { margin: 0 0 2mm; padding-left: 6mm; }
+li { margin-bottom: 1mm; }
+.marca { display: inline-block; border: 1.5px solid #2F6FBF; color: #2F6FBF; border-radius: 4px; padding: 0 2mm; font-size: 8.5pt; font-weight: 600; letter-spacing: .5px; margin-bottom: 2mm; }
+.sub { color: #5b6270; margin-bottom: 4mm; }
+.aviso { border-left: 4px solid #2F6FBF; background: #EEF3FA; padding: 2.5mm 4mm; margin: 2mm 0 4mm; }
+.mono, pre, code { font-family: Consolas, "Courier New", monospace; }
+pre { margin: 0; white-space: pre; font-size: 10pt; line-height: 1.3; }
+.rejilla { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; }
+.tarjeta { border: 1.2px solid #c9ced6; border-radius: 6px; padding: 2mm 3.5mm; break-inside: avoid; }
+.tarjeta .num { color: #2F6FBF; font-weight: 700; }
+.tema { color: #8B95A7; font-size: 8.5pt; }
+table { border-collapse: collapse; width: 100%; margin: 1mm 0 3mm; }
+th, td { border: 1px solid #c9ced6; padding: 1.4mm 2.2mm; text-align: left; vertical-align: top; }
+th { background: #eef1f5; }
+.tres { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; }
+.paso-grande { border: 1.2px solid #c9ced6; border-radius: 6px; padding: 3mm; }
+.paso-grande b { display: block; color: #2F6FBF; font-size: 15pt; }
+.pie { color: #5b6270; font-size: 8.5pt; margin-top: 3mm; }
+</style></head><body>
+<div class="marca">ENLACE VR · PYTHON · MANUAL DEL EQUIPO</div>
+<h1>Intérprete humano</h1>
+<div class="aviso">El Operador les lee una instrucción como <span class="mono">print(f3(9, 2))</span>. Busquen la
+función 3, pongan los valores en los parámetros (el primero al primero) y díganle <b>exactamente</b> qué imprime Python.
+Ojo: <span class="mono">4.0</span> no es lo mismo que <span class="mono">4</span>. El Operador dispara a esa respuesta.</div>
+<table>
+<tr><th>Operador</th><th>Qué hace</th><th>Ejemplo</th></tr>
+<tr><td class="mono">//</td><td>divide y quita los decimales</td><td class="mono">17 // 5 = 3</td></tr>
+<tr><td class="mono">%</td><td>el residuo (lo que sobra)</td><td class="mono">17 % 5 = 2</td></tr>
+<tr><td class="mono">/</td><td>divide y siempre da decimal</td><td class="mono">8 / 2 = 4.0</td></tr>
+<tr><td class="mono">**</td><td>potencia</td><td class="mono">2 ** 3 = 8</td></tr>
+<tr><td>Orden</td><td colspan="2"><span class="mono">( )</span> → <span class="mono">**</span> → <span class="mono">*  /  //  %</span> (de izquierda a derecha) → <span class="mono">+  -</span></td></tr>
+</table>
+<div class="rejilla"><div class="tarjeta"><h3><span class="num">Función 1</span> <span class='tema'>· // (división entera)</span></h3>
+<pre>def f1(a, b):
+    return a // b</pre></div><div class="tarjeta"><h3><span class="num">Función 2</span> <span class='tema'>· % (residuo)</span></h3>
+<pre>def f2(a, b):
+    return a % b</pre></div><div class="tarjeta"><h3><span class="num">Función 3</span> <span class='tema'>· / (siempre da decimal)</span></h3>
+<pre>def f3(a, b):
+    return a / b</pre></div><div class="tarjeta"><h3><span class="num">Función 4</span> <span class='tema'>· ** (potencia)</span></h3>
+<pre>def f4(a, b):
+    return a ** b</pre></div><div class="tarjeta"><h3><span class="num">Función 5</span> <span class='tema'>· primero * y luego +</span></h3>
+<pre>def f5(x):
+    return 2 + x * 3</pre></div><div class="tarjeta"><h3><span class="num">Función 6</span> <span class='tema'>· // y % juntos</span></h3>
+<pre>def f6(n):
+    return n // 10 + n % 10</pre></div><div class="tarjeta"><h3><span class="num">Función 7</span> <span class='tema'>· de izquierda a derecha</span></h3>
+<pre>def f7(a, b):
+    return a // b * b</pre></div><div class="tarjeta"><h3><span class="num">Función 8</span> <span class='tema'>· % antes que -</span></h3>
+<pre>def f8(x):
+    return 10 - x % 3</pre></div><div class="tarjeta"><h3><span class="num">Función 9</span> <span class='tema'>· % 2 para saber si es par</span></h3>
+<pre>def f9(n):
+    if n % 2 == 0:
+        return &quot;par&quot;
+    else:
+        return &quot;impar&quot;</pre></div><div class="tarjeta"><h3><span class="num">Función 10</span> <span class='tema'>· if y una resta</span></h3>
+<pre>def f10(precio):
+    if precio &gt;= 100:
+        return precio - 20
+    return precio</pre></div></div></body></html>

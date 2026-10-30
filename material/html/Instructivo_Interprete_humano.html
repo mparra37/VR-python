@@ -12,15 +12,10 @@ li { margin-bottom: 1mm; }
 .sub { color: #5b6270; margin-bottom: 4mm; }
 .aviso { border-left: 4px solid #2F6FBF; background: #EEF3FA; padding: 2.5mm 4mm; margin: 2mm 0 4mm; }
 .mono, pre, code { font-family: Consolas, "Courier New", monospace; }
-pre { margin: 0; white-space: pre; font-size: 9.6pt; line-height: 1.35; }
-.rejilla { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
-.tarjeta { border: 1.2px solid #c9ced6; border-radius: 6px; padding: 3mm 3.5mm; break-inside: avoid; }
+pre { margin: 0; white-space: pre; font-size: 10pt; line-height: 1.3; }
+.rejilla { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; }
+.tarjeta { border: 1.2px solid #c9ced6; border-radius: 6px; padding: 2mm 3.5mm; break-inside: avoid; }
 .tarjeta .num { color: #2F6FBF; font-weight: 700; }
-.pasos { counter-reset: paso; list-style: none; padding: 0; margin: 1mm 0 2mm; }
-.pasos li { counter-increment: paso; font-family: Consolas, monospace; font-size: 9.6pt; white-space: pre; margin: 0 0 .6mm; }
-.pasos li::before { content: counter(paso) "  "; color: #8B95A7; }
-.consola { background: #0B1F3A; color: #E6EDF7; border-radius: 4px; padding: 2mm 3mm; }
-.etq { font-size: 8.5pt; font-weight: 600; color: #5b6270; letter-spacing: .4px; margin-top: 1.5mm; }
 .tema { color: #8B95A7; font-size: 8.5pt; }
 table { border-collapse: collapse; width: 100%; margin: 1mm 0 3mm; }
 th, td { border: 1px solid #c9ced6; padding: 1.4mm 2.2mm; text-align: left; vertical-align: top; }
@@ -32,13 +27,13 @@ th { background: #eef1f5; }
 </style></head><body>
 <div class="marca">ENLACE VR · PYTHON · INSTRUCTIVO DEL PROFESOR</div>
 <h1>Intérprete humano</h1>
-<p class="sub">TC1037 y TC1038 · Temas: Evaluar expresiones, return contra print, if/elif/else (TC1037); range, while, listas, ciclos anidados (TC1038).</p>
+<p class="sub">Temas: Operadores //, %, /, ** y su orden; parámetros; if sencillos.</p>
 <h2>Cómo se juega</h2>
-<div class="tres"><div class='paso-grande'><b>1</b>El Operador lee la instrucción, por ejemplo <span class='mono'>print(f3(600))</span>.</div><div class='paso-grande'><b>2</b>El equipo busca la función 3, la sigue a mano y dice exactamente qué imprime Python.</div><div class='paso-grande'><b>3</b>El Operador dispara a la puerta con esa respuesta. Al acertar, el visor muestra el código de la función.</div></div>
+<div class="tres"><div class='paso-grande'><b>1</b>El Operador lee la instrucción, por ejemplo <span class='mono'>print(f3(9, 2))</span>.</div><div class='paso-grande'><b>2</b>El equipo busca la función 3, la sigue a mano con esos valores y dice exactamente qué imprime Python.</div><div class='paso-grande'><b>3</b>El Operador dispara a la puerta con esa respuesta. Después el visor muestra la función y la respuesta.</div></div>
 <h2>Antes de empezar (5 min)</h2>
 <ol>
-<li>En cada visor abre el sitio y en el menú elige el <b>equipo</b> (1 a 8) y el <b>curso</b> (TC1037 o TC1038).</li>
-<li>Imprime para cada equipo el <b>manual de su curso</b> y la hoja de puntajes (página Cómo empezar).</li>
+<li>En cada visor abre el sitio y en el menú elige el <b>equipo</b> (1 a 8).</li>
+<li>Imprime para cada equipo el <b>manual del juego</b> y la hoja de puntajes (página Cómo empezar).</li>
 <li>Equipos de 4: uno con el visor (Operador) y tres con el manual. Cambian de Operador en cada ronda.</li>
 </ol>
 <h2>Reglas</h2>
@@ -49,6 +44,6 @@ th { background: #eef1f5; }
 <tr><td><b>Seguridad</b></td><td>Se juega sentado; correa del control en la muñeca; el visor se pasa con las dos manos.</td></tr>
 </table>
 <h2>Al terminar (5 min)</h2>
-<p>Pregunta: <i>"¿Qué línea o qué función les costó más y por qué?"</i> Pídeles que expliquen un error que cometieron:
-ahí está el aprendizaje. Si vas a medir, aplica el test de antes y después y la encuesta MEEGA+.</p>
+<p>Pregunta: <i>"¿Qué les costó más y por qué?"</i> Pídeles que expliquen un error que cometieron:
+ahí está el aprendizaje.</p>
 <p class="pie">Enlace VR · Python · Uno ve. El equipo sabe.</p></body></html>

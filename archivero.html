@@ -9,8 +9,7 @@
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
   <script src="js/config.js"></script>
   <script src="js/marcador.js"></script>
-  <script src="js/datos_archivero.js"></script>
-  <script src="js/archivero_logica.js"></script>
+  <script src="js/datos_listas.js"></script>
   <script src="js/comun.js"></script>
   <script src="js/menu.js"></script>
   <script src="js/archivero.js"></script>
@@ -40,10 +39,10 @@
       <a-entity laser-controls="hand: left" raycaster="objects: .clickable; far: 6; lineColor: #5AA9FF"></a-entity>
     </a-entity>
 
-    <!-- el juego: consola con la pregunta y las listas como cajas -->
+    <!-- el juego: dos listas como cajas, la llamada arriba y la consola -->
     <a-entity id="juego" archivero></a-entity>
   </a-scene>
 
-  <div class="ayuda-2d">Modo 2D: arrastra para mirar alrededor y haz clic en una respuesta de la consola (o teclas A, B, C, D). En el visor, toca "VR". · <a href="index.html">Menú</a></div>
+  <div class="ayuda-2d">Modo 2D: arrastra para mirar alrededor y haz clic en la caja que regresa la función. En el visor, toca "VR". · <a href="index.html">Menú</a></div>
 </body>
 </html>

@@ -1,22 +1,20 @@
 # Enlace VR · Python
 
-Juegos de realidad virtual para jugar en equipo en **TC1037 (Pensamiento Algorítmico)** y
-**TC1038 (Fundamentos de Programación)**. Un Operador usa el visor (Meta Quest) y ve el código; el resto
-del equipo tiene el manual impreso. Solo hablando lo logran. Misma base que
-[Enlace VR](https://github.com/mparra37/ITC-VR-Games): menú, música, códigos de verificación y marcador.
+Juegos de realidad virtual para jugar en equipo en los cursos de Python. Un Operador usa el visor
+(Meta Quest) y ve el reto; el resto del equipo tiene el manual impreso. Solo hablando lo logran. Misma
+base que [Enlace VR](https://github.com/mparra37/ITC-VR-Games): menú, música, códigos de verificación y marcador.
 
-| Juego | Curso | El Operador ve | El equipo tiene |
-| --- | --- | --- | --- |
-| Arma el programa | TC1037 y TC1038 | Líneas de código revueltas (con trampas) y un editor con renglones numerados | Pseudocódigo y ejemplo de ejecución de cada programa |
-| Intérprete humano | TC1037 y TC1038 | `print(f3(600))` y 4 puertas con respuestas | El código de 10 funciones numeradas |
-| El archivero | TC1038 | Las listas paralelas `nombres` y `prom` como cajas | Las funciones de Control Escolar (buscar, mejor, eliminar, lugar…) |
-| La máquina de funciones | TC1037 | El programa que llama a la función, la función como máquina con un lugar por parámetro, cubos con valores, la variable y la pantalla | El código de 14 funciones: dicen qué recibe cada parámetro, qué regresa (return o None) y qué sale en la pantalla (print) |
-| Calculadora humana | TC1037 y TC1038 | Una expresión como `print(4 + 6 * 3 // 4 - 2 ** 3 / 8)` y un teclado | La tabla de prioridad, reglas de entero/decimal y una hoja de trabajo: dicen qué va primero y cuánto da, paso a paso |
+| Juego | El Operador ve | El equipo tiene |
+| --- | --- | --- |
+| Calculadora humana | Una expresión sencilla como `print(3 + 17 % 5 * 2)` y un teclado: escribe solo el resultado final. Con 2 correctas sale **¡Siguiente!** y se pasa el visor (el reloj se detiene) | La tabla de prioridad, reglas de entero/decimal y una hoja de trabajo para ayudar |
+| Intérprete humano | `print(f3(9, 2))` y 4 puertas con respuestas | El código de 10 funciones con números chicos (`//`, `%`, `/`, `**`, orden de las operaciones) |
+| El cadenero | El número de función, el valor de cada parámetro y la llamada, por ejemplo `entra(18, 1.60)` | El código de 12 funciones con `and`, `or`, `not`: dicen qué regresa (True, False o un texto) |
+| El archivero | Dos listas como cajas (`nombres` y `edades`, `ciudades`, `colores` o `califs`) y una llamada como `f3(nombres)` | El código de 11 funciones de listas (`lista1[-1]`, `len`, `index`…): dicen qué caja tocar |
 
 ## Para empezar
 
-- `index.html`: menú. Ahí se elige el **equipo** y el **curso** de cada visor (se guardan en el visor).
-- `empezar.html`: instrucciones cortas, enlaces a los manuales (uno por curso) y la hoja de puntajes.
+- `index.html`: menú. Ahí se elige el **equipo** de cada visor (se guarda en el visor).
+- `empezar.html`: instrucciones cortas, enlaces a los manuales y la hoja de puntajes.
 - `marcador.html`: verifica los códigos que da el visor al final de cada ronda y arma el marcador.
 - `material/`: PDF de los manuales del equipo y los instructivos de una hoja.
 
@@ -28,12 +26,11 @@ Todo sale de `generador/bancos.py`. Después de editarlo:
 python generador/generar.py
 ```
 
-El generador **ejecuta** cada programa y cada función en Python: comprueba la salida de los programas,
-calcula las respuestas correctas del Intérprete (y las falsas, corriendo versiones con errores típicos)
-y compara las respuestas de El archivero (`js/archivero_logica.js`, con Node) contra el mismo código en
-Python con 300 listas al azar. En la Calculadora, cada paso de cada expresión se evalúa con Python (módulo `ast`).
-Las preguntas del test de antes y después están prohibidas en los bancos (`DEL_TEST`, `DEL_TEST_LLAMADAS`): si alguna
-aparece, el generador se detiene. Luego escribe `js/datos_*.js` y los PDF (con Microsoft Edge).
+El generador **ejecuta** todo en Python: calcula lo que imprime cada pregunta del Intérprete (y las
+respuestas falsas, corriendo versiones con errores típicos), corre cada llamada del Cadenero y evalúa cada
+comparación por separado (para la explicación), evalúa cada expresión de la Calculadora paso a paso y
+corre cada llamada del Archivero con sus listas para saber qué caja regresa. Las preguntas del test de antes
+y después están prohibidas (`DEL_TEST`, `DEL_TEST_LLAMADAS`). Luego escribe `js/datos_*.js` y los PDF (con Microsoft Edge).
 
 ## Probar en la computadora
 

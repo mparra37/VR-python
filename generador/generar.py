@@ -1,84 +1,67 @@
 """Genera todo lo de Enlace VR · Python a partir de bancos.py.
 
-1. Comprueba los bancos EJECUTANDO el código:
-   - cada programa de Arma el programa se corre y su salida debe ser la del banco;
-   - cada pregunta del Intérprete se corre (print(fN(args))) y sus respuestas falsas salen de
-     correr las versiones con error; ninguna puede ser igual a la correcta;
-   - las respuestas que calcula el visor en El archivero (js/archivero_logica.js, con Node) se
-     comparan con este código en Python con 300 listas al azar.
-2. Escribe los datos del visor: js/datos_programa.js, js/datos_interprete.js, js/datos_archivero.js.
+1. Comprueba los bancos EJECUTANDO el código en Python:
+   - Intérprete humano: cada print(fN(args)) se corre; las respuestas falsas salen de correr las
+     versiones con error (ninguna puede ser igual a la correcta);
+   - El cadenero: cada llamada se corre y cada comparación de la condición se evalúa por separado
+     (así el visor explica por qué da True o False);
+   - Calculadora humana: cada expresión y cada paso se evalúa con Python (módulo ast);
+   - El archivero: cada llamada se corre con las listas del reto y se busca la caja que regresa.
+2. Escribe los datos del visor: js/datos_interprete.js, datos_logica.js, datos_calculadora.js, datos_listas.js.
 3. Hace los PDF (carta) en material/: manual del equipo e instructivo de una hoja por juego.
 
-Uso:  python generador/generar.py          (Edge convierte a PDF; si falla, vuelve a correrlo)
+Uso:  python generador/generar.py            (Edge convierte a PDF; si falla, vuelve a correrlo)
+      python generador/generar.py --sin-pdf  (solo los datos)
 """
 import ast
 import contextlib
 import html
 import io
 import json
-import math
-import random
-import re
 import pathlib
+import random
 import subprocess
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from bancos import ARCHIVERO, DEL_TEST, DEL_TEST_LLAMADAS, EJEMPLO_MANUAL, EXPRESIONES_FIJAS, FUNCIONES, LLAMADAS, MAQUINAS, PLANTILLAS, PROGRAMAS  # noqa: E402
+from bancos import (DEL_TEST, DEL_TEST_LLAMADAS, EJEMPLO_MANUAL, FUNCIONES, LISTAS_FUNCIONES, LOGICA,  # noqa: E402
+                    NOMBRES, OTRAS_LISTAS, PLANTILLAS)
 
 RAIZ = pathlib.Path(__file__).resolve().parent.parent
 MATERIAL = RAIZ / "material"
 HTML_DIR = MATERIAL / "html"
 EDGE = pathlib.Path(r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe")
-CURSOS = {"TC1037": "Pensamiento Algorítmico", "TC1038": "Fundamentos de Programación"}
 MINUTOS = 5
+ACIERTOS_POR_TURNO = 2  # Calculadora: después de 2 correctas, el visor pasa al siguiente
 
 
-# ---------- 1. comprobar ----------
+def valor_py(v):
+    """Un valor como se escribe en el código (los textos con comillas dobles)."""
+    return f'"{v}"' if isinstance(v, str) else repr(v)
 
-def correr_programa(lineas, entradas, eco=False):
-    """Corre un programa con input() falso. Con eco=True, la salida se ve como en la consola."""
-    alimento = iter(entradas)
+
+def reemplazar(texto, base, cambios):
+    """Cambia trozos de una línea de código. cambios = [(col_inicio, col_fin, nuevo)] en columnas del
+    archivo; base = columna donde empieza texto."""
+    for ini, fin, nuevo in sorted(cambios, reverse=True):
+        texto = texto[:ini - base] + nuevo + texto[fin - base:]
+    return texto
+
+
+def sin_repetir(lista):
+    return [x for i, x in enumerate(lista) if x not in lista[:i]]
+
+
+# ---------- Intérprete humano ----------
+
+def correr(codigo, expresion):
+    """Lo que aparece en la pantalla con print(expresion), o None si truena."""
     salida = io.StringIO()
-
-    def entrada_falsa(prompt=""):
-        valor = next(alimento)
-        print(prompt + (valor + "\n" if eco else ""), end="")
-        return valor
-
-    with contextlib.redirect_stdout(salida):
-        exec("\n".join(lineas), {"input": entrada_falsa, "__name__": "__main__"})
-    return salida.getvalue()
-
-
-def comprobar_programas():
-    datos = {}
-    for curso, lista in PROGRAMAS.items():
-        datos[curso] = []
-        for n, p in enumerate(lista, 1):
-            nombre = f"{curso} programa {n}"
-            assert 4 <= len(p["lineas"]) <= 8, f"{nombre}: de 4 a 8 líneas"
-            textos = p["lineas"] + p["trampas"]
-            assert len(set(textos)) == len(textos), f"{nombre}: hay líneas repetidas"
-            salida = correr_programa(p["lineas"], p["entradas"])
-            assert " ".join(salida.split()) == " ".join(p["salida"].split()), f"{nombre}: imprime {salida!r}"
-            # cada trampa, puesta en lugar de una línea parecida, debe cambiar o romper el programa
-            ejemplo = correr_programa(p["lineas"], p["entradas"], eco=True).rstrip("\n")
-            datos[curso].append({
-                "id": n, "titulo": p["titulo"], "descripcion": p["descripcion"], "pasos": p["pasos"],
-                "lineas": p["lineas"], "trampas": p["trampas"], "ejemplo": ejemplo,
-            })
-    return datos
-
-
-def imprimir_llamada(codigo, llamada):
-    """Lo que aparece en la pantalla con print(llamada), o 'Error' si truena."""
-    salida = io.StringIO()
-    espacio = {"math": math}
+    espacio = {}
     try:
         with contextlib.redirect_stdout(salida):
             exec(codigo, espacio)
-            exec(f"print({llamada})", espacio)
+            exec(f"print({expresion})", espacio)
     except Exception:  # noqa: BLE001 - una versión con error puede tronar; esa no se usa
         return None
     return salida.getvalue().rstrip("\n")
@@ -86,120 +69,185 @@ def imprimir_llamada(codigo, llamada):
 
 def falsas_genericas(correcta):
     """Respuestas falsas de respaldo, con errores típicos de lectura."""
-    lineas = correcta.split("\n")
-    if len(lineas) > 1:
-        return ["\n".join(reversed(lineas)), lineas[0], lineas[-1], "None"]
-    s = correcta
     try:
-        n = int(s)
-        return [str(n + 1), str(n - 1), f"{n}.0", str(n * 2)]
+        n = int(correcta)
+        return [str(n + 1), f"{n}.0", str(n - 1), str(n * 2)]
     except ValueError:
         pass
     try:
-        x = float(s)
+        x = float(correcta)
         return [str(int(x)), str(round(x + 1, 2)), str(round(x - 1, 2)), "None"]
     except ValueError:
         pass
-    if s.startswith("["):
-        return ["[]", s.replace("[", "(").replace("]", ")"), "None", s[:-1] + ", 0]"]
-    return ["None", f"'{s}'", "True", "Error"]
+    return [f"'{correcta}'", "None", "True", "Error"]
 
 
-def comprobar_funciones():
-    datos = {}
-    for curso, lista in FUNCIONES.items():
-        datos[curso] = {"funciones": [], "retos": []}
-        for n, f in enumerate(lista, 1):
-            nombre = f"f{n}"
-            assert f"def {nombre}(" in f["codigo"], f"{curso}: la función {n} debe llamarse {nombre}"
-            datos[curso]["funciones"].append({"id": n, "codigo": f["codigo"], "tema": f["tema"]})
-            for args in f["args"]:
-                llamada = f"{nombre}({args})"
-                assert llamada not in DEL_TEST_LLAMADAS.get(curso, []), f"{curso} {llamada} es una pregunta del test de antes y después"
-                correcta = imprimir_llamada(f["codigo"], llamada)
-                assert correcta is not None, f"{curso} {llamada} truena"
-                falsas = []
-                for variante in f["errores"]:
-                    r = imprimir_llamada(variante, llamada)
-                    if r is not None and r != correcta and r not in falsas:
-                        falsas.append(r)
-                for r in falsas_genericas(correcta):
-                    if len(falsas) >= 3:
-                        break
-                    if r != correcta and r not in falsas:
-                        falsas.append(r)
-                assert len(falsas) >= 3, f"{curso} {llamada}: faltan respuestas falsas"
-                datos[curso]["retos"].append({"f": n, "llamada": f"print({llamada})", "correcta": correcta, "falsas": falsas[:3]})
+def comprobar_interprete():
+    datos = {"funciones": [], "retos": []}
+    for n, f in enumerate(FUNCIONES, 1):
+        nombre = f"f{n}"
+        assert f"def {nombre}(" in f["codigo"], f"la función {n} debe llamarse {nombre}"
+        datos["funciones"].append({"id": n, "codigo": f["codigo"], "tema": f["tema"]})
+        for args in f["args"]:
+            llamada = f"{nombre}({args})"
+            assert llamada not in DEL_TEST_LLAMADAS, f"{llamada} es una pregunta del test de antes y después"
+            correcta = correr(f["codigo"], llamada)
+            assert correcta is not None, f"{llamada} truena"
+            falsas = []
+            for variante in f["errores"]:
+                r = correr(variante, llamada)
+                corta = r is not None and ("." not in r or len(r.split(".")[1]) <= 2)  # nada de 2.6666666666666665
+                if corta and r != correcta and r not in falsas:
+                    falsas.append(r)
+            for r in falsas_genericas(correcta):
+                if len(falsas) < 3 and r != correcta and r not in falsas:
+                    falsas.append(r)
+            assert len(falsas) == 3, f"{llamada}: faltan respuestas falsas"
+            datos["retos"].append({"f": n, "llamada": f"print({llamada})", "correcta": correcta, "falsas": falsas})
     return datos
 
 
-def comprobar_archivero():
-    """Node calcula las respuestas del visor; Python las calcula con el código del manual."""
-    codigo = "\n\n".join(c for _, c in ARCHIVERO)
-    prueba = RAIZ / "generador" / "probar_archivero.js"
-    salida = subprocess.run(["node", str(prueba), "300"], capture_output=True, text=True, encoding="utf-8", check=True, cwd=RAIZ).stdout
-    casos = json.loads(salida)
-    malos = 0
-    for caso in casos:
-        espacio = {}
-        buf = io.StringIO()
-        with contextlib.redirect_stdout(buf):
-            exec(codigo, espacio)
-            exec(f"nombres = {json.dumps(caso['nombres'], ensure_ascii=False)}\nprom = {caso['promPy']}", espacio)
-            exec(caso["codigo"], espacio)
-        if buf.getvalue().rstrip("\n") != caso["correcta"]:
-            malos += 1
-            if malos <= 5:
-                print("  NO COINCIDE:", caso["codigo"].replace("\n", " ; "), "| python:", buf.getvalue().strip(), "| visor:", caso["correcta"])
-        assert caso["correcta"] not in caso["falsas"], f"respuesta falsa igual a la correcta: {caso}"
-        assert len(set(caso["falsas"])) == 3, f"respuestas falsas repetidas: {caso}"
-    assert malos == 0, f"{malos} de {len(casos)} respuestas del archivero no coinciden con Python"
-    return {"funciones": [{"nombre": n, "codigo": c} for n, c in ARCHIVERO]}
+# ---------- El cadenero (and, or, not) ----------
+
+def hojas(nodo):
+    """Las partes de una condición que dan True o False por sí solas (lo que une and, or, not)."""
+    if isinstance(nodo, ast.BoolOp):
+        return [h for v in nodo.values for h in hojas(v)]
+    if isinstance(nodo, ast.UnaryOp) and isinstance(nodo.op, ast.Not):
+        return hojas(nodo.operand)
+    return [nodo]
+
+
+def explicar_condicion(codigo, nodo, entorno, fuente_args):
+    """Tres renglones: la condición, con los valores puestos, y cada comparación ya resuelta."""
+    assert nodo.lineno == nodo.end_lineno, "las condiciones van en un solo renglón"
+    texto = ast.get_source_segment(codigo, nodo)
+    nombres = [(n.col_offset, n.end_col_offset, fuente_args[n.id]) for n in ast.walk(nodo)
+               if isinstance(n, ast.Name) and n.id in fuente_args]
+    con_valores = reemplazar(texto, nodo.col_offset, nombres)
+    partes = [(h.col_offset, h.end_col_offset, repr(eval(ast.get_source_segment(codigo, h), {}, entorno)))  # noqa: S307
+              for h in hojas(nodo)]
+    resueltas = reemplazar(texto, nodo.col_offset, partes)
+    valor = eval(texto, {}, entorno)  # noqa: S307 - código nuestro
+    return {"lineas": sin_repetir([texto, con_valores, resueltas]), "valor": repr(valor)}, valor
+
+
+def seguir_funcion(codigo, args):
+    """Sigue la función paso a paso (if / elif / else / return) como lo haría el equipo."""
+    definicion = ast.parse(codigo).body[0]
+    params = [a.arg for a in definicion.args.args]
+    llamada = f"f({args})"
+    nodos_args = ast.parse(llamada, mode="eval").body.args
+    assert len(nodos_args) == len(params), f"{definicion.name}({args}): no coinciden los parámetros"
+    valores = [ast.literal_eval(a) for a in nodos_args]
+    entorno = dict(zip(params, valores))
+    fuente_args = {p: ast.get_source_segment(llamada, a) for p, a in zip(params, nodos_args)}
+    pasos = []
+
+    def bloque(instrucciones):
+        for st in instrucciones:
+            if isinstance(st, ast.Return):
+                if isinstance(st.value, ast.Constant):
+                    return st.value.value
+                paso, valor = explicar_condicion(codigo, st.value, entorno, fuente_args)
+                pasos.append(dict(paso, clave="return"))
+                return valor
+            if isinstance(st, ast.If):
+                clave = "if"
+                while True:
+                    paso, valor = explicar_condicion(codigo, st.test, entorno, fuente_args)
+                    pasos.append(dict(paso, clave=clave))
+                    if valor:
+                        r = bloque(st.body)
+                        if r is not None:
+                            return r
+                        break
+                    if len(st.orelse) == 1 and isinstance(st.orelse[0], ast.If):
+                        st, clave = st.orelse[0], "elif"
+                        continue
+                    r = bloque(st.orelse)
+                    if r is not None:
+                        return r
+                    break
+                continue
+            raise ValueError(f"instrucción no soportada en {definicion.name}: {ast.dump(st)}")
+        return None
+
+    regresa = bloque(definicion.body)
+    # lo mismo, pero corriendo la función de verdad
+    espacio = {}
+    exec(codigo, espacio)
+    real = espacio[definicion.name](*valores)
+    assert real == regresa and type(real) is type(regresa), f"{definicion.name}({args}): el seguimiento no coincide con Python"
+    assert isinstance(real, (bool, str)), f"{definicion.name}({args}) debe regresar True/False o un texto"
+    return definicion.name, params, valores, fuente_args, pasos, real
+
+
+def posibles_resultados(codigo):
+    """Lo que puede regresar la función: True/False o los textos de sus return."""
+    vistos = []
+    for nodo in ast.walk(ast.parse(codigo)):
+        if isinstance(nodo, ast.Return):
+            if isinstance(nodo.value, ast.Constant):
+                vistos.append(valor_py(nodo.value.value))
+            else:
+                vistos += ["True", "False"]
+    return sin_repetir(vistos)
+
+
+def generar_logica():
+    datos = {"funciones": [], "retos": []}
+    for n, f in enumerate(LOGICA, 1):
+        opciones = posibles_resultados(f["codigo"])
+        if set(opciones) == {"True", "False"}:
+            opciones = ["True", "False"]
+        resultados = set()
+        nombre = None
+        for args in f["args"]:
+            nombre, params, valores, fuente_args, pasos, real = seguir_funcion(f["codigo"], args)
+            assert valor_py(real) in opciones, f"{nombre}({args}): {real!r} no está en las opciones"
+            resultados.add(valor_py(real))
+            datos["retos"].append({
+                "f": n, "nivel": f["nivel"], "llamada": f"{nombre}({args})",
+                "parametros": [fuente_args[p] for p in params],
+                "correcta": valor_py(real), "opciones": opciones, "pasos": pasos,
+            })
+        assert resultados == set(opciones), f"{nombre}: las llamadas no cubren todas las respuestas ({resultados})"
+        datos["funciones"].append({"id": n, "nombre": nombre, "codigo": f["codigo"], "nivel": f["nivel"]})
+    return datos
 
 
 # ---------- Calculadora humana ----------
 
-OPERADORES = {ast.Add: "+", ast.Sub: "-", ast.Mult: "*", ast.Div: "/", ast.FloorDiv: "//", ast.Mod: "%", ast.Pow: "**",
-              ast.Gt: ">", ast.Lt: "<", ast.GtE: ">=", ast.LtE: "<=", ast.Eq: "==", ast.NotEq: "!="}
+OPERADORES = {ast.Add: "+", ast.Sub: "-", ast.Mult: "*", ast.Div: "/", ast.FloorDiv: "//", ast.Mod: "%", ast.Pow: "**"}
+PRIORIDAD = {"**": 3, "*": 2, "/": 2, "//": 2, "%": 2, "+": 1, "-": 1}
 
 
 def valor_ok(v):
-    """Valores que se pueden calcular a mano: enteros chicos o decimales cortos."""
-    if isinstance(v, bool):
-        return True
+    """Valores fáciles de calcular en la cabeza: enteros de 0 a 150 o decimales con un solo decimal."""
     if isinstance(v, int):
-        return -999 <= v <= 9999
+        return 0 <= v <= 150
     texto = str(v)
-    return "e" not in texto and len(texto.split(".")[1]) <= 2 and abs(v) < 10000
+    return "e" not in texto and 0 <= v <= 150 and len(texto.split(".")[1]) <= 1
 
 
 def arbol(nodo, fuente, variables):
-    """El árbol de la expresión. Cada operación guarda lo que Python imprime al evaluarla sola."""
+    """El árbol de la expresión. Cada operación guarda lo que da en Python."""
     if isinstance(nodo, ast.Constant):
         return {"hoja": repr(nodo.value)}
     if isinstance(nodo, ast.Name):
         return {"hoja": nodo.id}
-    if isinstance(nodo, ast.BinOp):
-        izq, op, der = nodo.left, OPERADORES[type(nodo.op)], nodo.right
-    elif isinstance(nodo, ast.Compare) and len(nodo.ops) == 1:
-        izq, op, der = nodo.left, OPERADORES[type(nodo.ops[0])], nodo.comparators[0]
-    else:
-        raise ValueError(f"operación no soportada: {ast.dump(nodo)}")
+    assert isinstance(nodo, ast.BinOp), f"operación no soportada: {ast.dump(nodo)}"
     trozo = fuente[nodo.col_offset:nodo.end_col_offset]
     valor = eval(trozo, {"__builtins__": {}}, dict(variables))  # noqa: S307 - expresiones nuestras
     if not valor_ok(valor):
         raise ValueError(f"{trozo} = {valor}")
-    parentesis = (nodo.col_offset > 0 and fuente[nodo.col_offset - 1] == "("
-                  and fuente[nodo.end_col_offset:nodo.end_col_offset + 1] == ")")
-    return {"op": op, "izq": arbol(izq, fuente, variables), "der": arbol(der, fuente, variables),
-            "valor": str(valor), "parentesis": parentesis}
+    return {"op": OPERADORES[type(nodo.op)], "izq": arbol(nodo.left, fuente, variables),
+            "der": arbol(nodo.right, fuente, variables), "valor": str(valor)}
 
 
-PRIORIDAD = {"**": 3, "*": 2, "/": 2, "//": 2, "%": 2, "+": 1, "-": 1}
-
-
-def pasos_canonicos(a):
-    """Pasos en el orden de clase: primero lo de mayor prioridad y, si empatan, el de más a la izquierda."""
+def pasos_canonicos(a, variables):
+    """Los pasos en el orden de clase: primero lo de mayor prioridad y, si empatan, el de la izquierda."""
     hechos = set()
 
     def listos(x):
@@ -208,38 +256,37 @@ def pasos_canonicos(a):
     def en_orden(x):
         return [] if "hoja" in x else en_orden(x["izq"]) + [x] + en_orden(x["der"])
 
+    def lado(x):
+        if "hoja" in x:
+            return str(variables.get(x["hoja"], x["hoja"]))
+        return x["valor"]
+
     pasos = []
     while not listos(a):
         candidatos = [x for x in en_orden(a) if id(x) not in hechos and listos(x["izq"]) and listos(x["der"])]
-        mejor = max(candidatos, key=lambda x: PRIORIDAD.get(x["op"], 0))
-        pasos.append({"op": mejor["op"], "valor": mejor["valor"],
-                      "izq": mejor["izq"] if "hoja" in mejor["izq"] else {"hoja": mejor["izq"]["valor"]},
-                      "der": mejor["der"] if "hoja" in mejor["der"] else {"hoja": mejor["der"]["valor"]}})
+        mejor = max(candidatos, key=lambda x: PRIORIDAD[x["op"]])
+        pasos.append(f"{lado(mejor['izq'])} {mejor['op']} {lado(mejor['der'])} = {mejor['valor']}")
         hechos.add(id(mejor))
     return pasos
-
-
-def texto_operacion(a):
-    def lado(x):
-        v = x["hoja"] if "hoja" in x else x["valor"]
-        return f"({v})" if v.startswith("-") else v
-    return f"{lado(a['izq'])} {a['op']} {lado(a['der'])}"
 
 
 def expresion(fuente, variables, nivel):
     a = arbol(ast.parse(fuente, mode="eval").body, fuente, variables)
     final = str(eval(fuente, {"__builtins__": {}}, dict(variables)))  # noqa: S307
     assert final == a["valor"], f"{fuente}: el árbol no coincide con Python"
-    # lo que imprime el programa completo, corrido de verdad
     programa = "".join(f"{k} = {v}\n" for k, v in variables.items()) + f"print({fuente})"
-    assert correr_programa([programa], []).strip() == final, f"{fuente}: print no coincide"
-    return {"nivel": nivel, "variables": variables, "expresion": fuente, "arbol": a, "final": final}
+    salida = io.StringIO()
+    with contextlib.redirect_stdout(salida):
+        exec(programa, {})
+    assert salida.getvalue().strip() == final, f"{fuente}: print no coincide"
+    return {"nivel": nivel, "variables": variables, "expresion": fuente, "final": final,
+            "pasos": pasos_canonicos(a, variables)}
 
 
-def generar_expresiones(por_nivel=30, semilla=2026):
+def generar_expresiones(por_nivel=40, semilla=2026):
     azar = random.Random(semilla)
-    lista = [expresion(e["expresion"], e["variables"], e["nivel"]) for e in EXPRESIONES_FIJAS]
-    vistas = {e["expresion"] + str(e["variables"]) for e in lista}
+    lista = []
+    vistas = set()
     prohibidas = {" ".join(t.split()) for t in DEL_TEST}
     for nivel, plantillas in PLANTILLAS.items():
         hechas = 0
@@ -249,26 +296,29 @@ def generar_expresiones(por_nivel=30, semilla=2026):
             assert intentos < 50000, f"nivel {nivel}: no salen suficientes expresiones"
             plantilla = azar.choice(plantillas)
             texto = plantilla
-            for letra in "abcde":
-                if letra in plantilla:
-                    # después de ** el exponente es 2 o 3; antes, la base hasta 6
+            for letra in "abcd":
+                if letra in texto:
                     i = texto.index(letra)
-                    if texto[max(0, i - 3):i] == "** ":
-                        numero = azar.choice([2, 3])
-                    elif texto[i + 1:i + 4] == " **":
-                        numero = azar.randint(2, 6)
+                    if texto[i + 1:i + 4] == " **":
+                        numero = azar.randint(2, 5)  # la base de una potencia, chica
+                    elif letra == "a":
+                        numero = azar.randint(5, 20)
                     else:
-                        numero = azar.randint(2, 9 if nivel == 1 else 12)
-                    texto = texto.replace(letra, str(numero))  # la misma letra, el mismo número
-            variables = {letra: azar.randint(2, 20) for letra in "xyz" if letra in plantilla}
+                        numero = azar.randint(2, 6)
+                    texto = texto.replace(letra, str(numero))
+            variables = {}
+            if "x" in plantilla:
+                variables["x"] = azar.randint(5, 20)
+            if "y" in plantilla:
+                variables["y"] = azar.randint(2, 6)
             try:
                 e = expresion(texto, variables, nivel)
-            except (ValueError, ZeroDivisionError, AssertionError):
+            except (ValueError, ZeroDivisionError):
                 continue
             clave = texto + str(variables)
-            if " ".join(texto.split()) in prohibidas:
+            if " ".join(texto.split()) in prohibidas or clave in vistas:
                 continue
-            if clave in vistas or (e["final"] in ("0", "0.0") and azar.random() < 0.7):
+            if e["final"] in ("0", "0.0") and azar.random() < 0.7:
                 continue
             vistas.add(clave)
             lista.append(e)
@@ -276,150 +326,60 @@ def generar_expresiones(por_nivel=30, semilla=2026):
     return lista
 
 
-# ---------- La máquina de funciones ----------
+# ---------- El archivero (listas) ----------
 
-def correr_registrando(fuentes, programa):
-    """Corre el programa con las funciones de las máquinas y registra cada llamada, en el orden en que
-    Python las hace: qué recibió, qué regresó y qué imprimió mientras corría."""
+def generar_listas(conjuntos=40, por_conjunto=4, semilla=2026):
+    azar = random.Random(semilla)
+    funciones = []
     espacio = {}
-    salida = io.StringIO()
-    llamadas = []
-    for _, fuente in fuentes:
-        exec(fuente, espacio)
-
-    def envolver(nombre, original):
-        def envoltura(*args):
-            registro = {"funcion": nombre, "args": args, "desde": salida.tell()}
-            llamadas.append(registro)
-            registro["ret"] = original(*args)
-            registro["imprimio"] = salida.getvalue()[registro["desde"]:]
-            return registro["ret"]
-        return envoltura
-
-    for nombre, _ in fuentes:
-        espacio[nombre] = envolver(nombre, espacio[nombre])
-    with contextlib.redirect_stdout(salida):
-        exec(programa, espacio)
-    return llamadas, salida.getvalue().rstrip("\n"), espacio
-
-
-def llamadas_en_fuente(programa, funcion):
-    """Las llamadas a la función en el código, en el orden en que Python las ejecuta."""
-    orden = []
-
-    def visitar(nodo):
-        for hijo in ast.iter_child_nodes(nodo):
-            visitar(hijo)
-        if isinstance(nodo, ast.Call) and isinstance(nodo.func, ast.Name) and nodo.func.id == funcion:
-            orden.append(nodo)
-    visitar(ast.parse(programa))
-    return orden
-
-
-def variantes(fuente):
-    """La función con los errores típicos: print en vez de return, return en vez de print y los
-    parámetros al revés."""
-    lineas = fuente.split("\n")
+    for n, codigo in enumerate(LISTAS_FUNCIONES, 1):
+        assert codigo.startswith(f"def f{n}("), f"la función {n} debe llamarse f{n}"
+        exec(codigo, espacio)
+        funciones.append({"id": n, "codigo": codigo})
     salida = []
-    con_print = [re.sub(r"^(\s*)return (.+)$", r"\1print(\2)", l) for l in lineas]
-    salida.append("\n".join(con_print))
-    con_return = [re.sub(r"^(\s*)print\((.*)\)$", r"\1return \2", l) for l in lineas]
-    salida.append("\n".join(con_return))
-    m = re.match(r"def (\w+)\((.*)\):", lineas[0])
-    params = [x.strip() for x in m.group(2).split(",")]
-    if len(params) > 1:
-        salida.append("\n".join([f"def {m.group(1)}({', '.join(reversed(params))}):"] + lineas[1:]))
-    return [v for v in salida if v != fuente]
+    for _ in range(conjuntos):
+        largo = azar.choice([5, 6])
+        otra = azar.choice(list(OTRAS_LISTAS))
+        listas = {"nombres": azar.sample(NOMBRES, largo), otra: azar.sample(OTRAS_LISTAS[otra], largo)}
+        todos = [v for vs in listas.values() for v in vs]
+        assert len(set(map(repr, todos))) == len(todos), "cada caja debe tener un valor distinto"
+        retos = []
+        for n in azar.sample(range(1, len(LISTAS_FUNCIONES) + 1), por_conjunto):
+            codigo = LISTAS_FUNCIONES[n - 1]
+            definicion = ast.parse(codigo).body[0]
+            params = [a.arg for a in definicion.args.args]
+            una, otra_lista = azar.sample(list(listas), 2)
+            args = {"lista1": una}
+            if "lista2" in params:
+                args["lista2"] = otra_lista
+            if "i" in params:
+                minimo = 0 if n == 7 else 1
+                maximo = largo - 1 if n == 7 else largo
+                args["i"] = str(azar.randint(minimo, maximo))
+            if "x" in params:
+                args["x"] = valor_py(azar.choice(listas[una]))
+            llamada = f"f{n}({', '.join(args[p] for p in params)})"
+            regresa = eval(llamada, dict(espacio), {k: list(v) for k, v in listas.items()})  # noqa: S307
+            cajas = [(k, i) for k, vs in listas.items() for i, v in enumerate(vs) if v == regresa and type(v) is type(regresa)]
+            assert len(cajas) == 1, f"{llamada}: la respuesta debe estar en una sola caja ({cajas})"
+            lista, indice = cajas[0]
+            # el renglón del return, con los valores puestos, hasta llegar a la posición
+            ret = definicion.body[-1].value
+            assert isinstance(ret, ast.Subscript) and isinstance(ret.value, ast.Name), f"f{n}: debe regresar lista[algo]"
+            idx_texto = ast.get_source_segment(codigo, ret.slice)
+            idx_con_valores = reemplazar(idx_texto, ret.slice.col_offset,
+                                         [(x.col_offset, x.end_col_offset, args[x.id]) for x in ast.walk(ret.slice)
+                                          if isinstance(x, ast.Name) and x.id in args])
+            posicion = eval(idx_con_valores, {}, {k: list(v) for k, v in listas.items()})  # noqa: S307
+            assert posicion % largo == indice, f"{llamada}: la posición no coincide"
+            pasos = sin_repetir([f"{ret.value.id}[{idx_texto}]", f"{lista}[{idx_con_valores}]", f"{lista}[{posicion}]", f"{lista}[{indice}]"])
+            retos.append({"f": n, "llamada": llamada, "lista": list(listas).index(lista), "indice": indice,
+                          "valor": valor_py(regresa), "parametros": [f"{p} = {args[p]}" for p in params], "pasos": pasos})
+        salida.append({"listas": [{"nombre": k, "valores": [valor_py(v) for v in vs]} for k, vs in listas.items()], "retos": retos})
+    return {"funciones": funciones, "conjuntos": salida}
 
 
-def tres_distintas(correcta, candidatas, nombre):
-    falsas = []
-    for c in candidatas:
-        if c is not None and c != correcta and c not in falsas:
-            falsas.append(c)
-    assert len(falsas) >= 3, f"{nombre}: faltan respuestas falsas ({falsas})"
-    return falsas[:3]
-
-
-def generar_maquinas():
-    fuentes = list(MAQUINAS)
-    por_nombre = dict(fuentes)
-    retos = []
-    for n, r in enumerate(LLAMADAS, 1):
-        nombre = f"llamada {n} ({r['programa'].splitlines()[-1]})"
-        llamadas, pantalla, espacio = correr_registrando(fuentes, r["programa"])
-        ocurrencia = r.get("ocurrencia", 1)
-        mias = [c for c in llamadas if c["funcion"] == r["funcion"]]
-        llamada = mias[ocurrencia - 1]
-        nodo = llamadas_en_fuente(r["programa"], r["funcion"])[ocurrencia - 1]
-        fuente_args = [ast.get_source_segment(r["programa"], a) for a in nodo.args]
-        definicion = ast.parse(por_nombre[r["funcion"]]).body[0]
-        params = [a.arg for a in definicion.args.args]
-        assert len(params) == len(llamada["args"]) == len(fuente_args), nombre
-        regresa = repr(llamada["ret"])
-        if r["destino"] not in ("print", "nada"):
-            assert espacio[r["destino"]] == llamada["ret"], f"{nombre}: {r['destino']} no guarda lo que regresó"
-        # respuestas falsas: correr el mismo programa con la función "con el error típico"
-        otras_regresa, otras_pantalla = [], []
-        for v in variantes(por_nombre[r["funcion"]]):
-            try:
-                ll, pa, _ = correr_registrando([(k, v if k == r["funcion"] else f) for k, f in fuentes], r["programa"])
-                otras_regresa.append(repr([c for c in ll if c["funcion"] == r["funcion"]][ocurrencia - 1]["ret"]))
-                otras_pantalla.append(pa)
-            except Exception:  # noqa: BLE001 - una versión con error puede tronar
-                pass
-        impreso = llamada["imprimio"].rstrip("\n")
-        textos = [repr(t) for t in re.findall(r'"([^"]*)"', por_nombre[r["funcion"]])]
-        respaldo_r = otras_regresa + ([repr(impreso)] if impreso else []) + textos + ["None"]
-        if isinstance(llamada["ret"], bool):
-            respaldo_r.append(repr(not llamada["ret"]))
-        try:
-            if isinstance(llamada["ret"], bool):
-                raise TypeError
-            x = float(llamada["ret"])
-            respaldo_r += [repr(x) if isinstance(llamada["ret"], int) else repr(int(x)), repr(llamada["ret"] + 1) if not isinstance(llamada["ret"], bool) else "None"]
-        except (TypeError, ValueError):
-            pass
-        respaldo_r += ["0", "'None'", "True"]
-        lineas = pantalla.split("\n")
-        respaldo_p = otras_pantalla + ["\n".join(reversed(lineas)), pantalla + "\nNone", "\n".join(lineas[:-1]) if len(lineas) > 1 else "None", regresa, "(nada)"]
-        respaldo_p = [x for x in respaldo_p if x != "" or pantalla != ""]
-        # cubos: los valores correctos y algunos que confunden (el nombre de la variable, la expresión sin calcular…)
-        valores = [repr(a) for a in llamada["args"]]
-        extras = []
-        for arg in nodo.args:
-            if isinstance(arg, ast.Constant):
-                continue  # un valor escrito tal cual no confunde
-            texto_arg = ast.get_source_segment(r["programa"], arg)
-            extras.append(texto_arg)  # mandar "el texto" en vez del valor
-            for sub in ast.walk(arg):  # los valores de adentro, sin calcular
-                if isinstance(sub, ast.Name) and sub.id in espacio and not callable(espacio[sub.id]):
-                    extras.append(repr(espacio[sub.id]))
-                elif isinstance(sub, ast.Constant) and sub is not arg:
-                    extras.append(repr(sub.value))
-        extras = [e for i, e in enumerate(extras) if e not in valores and e not in extras[:i]]
-        for t in textos + [repr(a + 1) for a in llamada["args"] if isinstance(a, int) and not isinstance(a, bool)] + ["None", "0"]:
-            if len(extras) >= 2:
-                break
-            if t not in valores and t not in extras:
-                extras.append(t)
-        lineas_programa = r["programa"].split("\n")
-        texto_llamada = ast.get_source_segment(r["programa"], nodo)
-        linea_llamada = next(i for i, l in enumerate(lineas_programa) if texto_llamada in l)
-        retos.append({
-            "nivel": r["nivel"], "lineas": lineas_programa, "linea": linea_llamada, "llamada": texto_llamada,
-            "funcion": r["funcion"], "firma": por_nombre[r["funcion"]].split("\n")[0],
-            "parametros": [{"nombre": p_, "valor": v, "fuente": f} for p_, v, f in zip(params, valores, fuente_args)],
-            "cubos": valores + extras[:3],
-            "regresa": regresa, "regresaFalsas": tres_distintas(regresa, respaldo_r, nombre),
-            "pantalla": pantalla if pantalla else "(nada)",
-            "pantallaFalsas": tres_distintas(pantalla if pantalla else "(nada)", [x if x else "(nada)" for x in respaldo_p], nombre),
-            "imprimio": impreso, "destino": r["destino"],
-        })
-    return {"funciones": [{"nombre": k, "codigo": v} for k, v in fuentes], "retos": retos}
-
-
-# ---------- 2. datos para el visor ----------
+# ---------- datos para el visor ----------
 
 def exportar(nombre, variable, datos):
     ruta = RAIZ / "js" / nombre
@@ -427,7 +387,7 @@ def exportar(nombre, variable, datos):
                     + json.dumps(datos, ensure_ascii=False) + ";\n", encoding="utf-8")
 
 
-# ---------- 3. PDF ----------
+# ---------- PDF ----------
 
 CSS = """
 @page { size: letter; margin: 13mm; }
@@ -443,15 +403,10 @@ li { margin-bottom: 1mm; }
 .sub { color: #5b6270; margin-bottom: 4mm; }
 .aviso { border-left: 4px solid #2F6FBF; background: #EEF3FA; padding: 2.5mm 4mm; margin: 2mm 0 4mm; }
 .mono, pre, code { font-family: Consolas, "Courier New", monospace; }
-pre { margin: 0; white-space: pre; font-size: 9.6pt; line-height: 1.35; }
-.rejilla { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
-.tarjeta { border: 1.2px solid #c9ced6; border-radius: 6px; padding: 3mm 3.5mm; break-inside: avoid; }
+pre { margin: 0; white-space: pre; font-size: 10pt; line-height: 1.3; }
+.rejilla { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; }
+.tarjeta { border: 1.2px solid #c9ced6; border-radius: 6px; padding: 2mm 3.5mm; break-inside: avoid; }
 .tarjeta .num { color: #2F6FBF; font-weight: 700; }
-.pasos { counter-reset: paso; list-style: none; padding: 0; margin: 1mm 0 2mm; }
-.pasos li { counter-increment: paso; font-family: Consolas, monospace; font-size: 9.6pt; white-space: pre; margin: 0 0 .6mm; }
-.pasos li::before { content: counter(paso) "  "; color: #8B95A7; }
-.consola { background: #0B1F3A; color: #E6EDF7; border-radius: 4px; padding: 2mm 3mm; }
-.etq { font-size: 8.5pt; font-weight: 600; color: #5b6270; letter-spacing: .4px; margin-top: 1.5mm; }
 .tema { color: #8B95A7; font-size: 8.5pt; }
 table { border-collapse: collapse; width: 100%; margin: 1mm 0 3mm; }
 th, td { border: 1px solid #c9ced6; padding: 1.4mm 2.2mm; text-align: left; vertical-align: top; }
@@ -470,71 +425,59 @@ def pagina(titulo, cuerpo):
             f"<style>{CSS}</style></head><body>{cuerpo}</body></html>")
 
 
-def manual_programa(curso, programas):
-    tarjetas = "".join(f"""<div class="tarjeta">
-<h3><span class="num">Programa {p['id']}</span> · {esc(p['titulo'])}</h3>
-<p>{esc(p['descripcion'])}</p>
-<div class="etq">PSEUDOCÓDIGO (en este orden)</div>
-<ol class="pasos">{''.join(f'<li>{esc(s)}</li>' for s in p['pasos'])}</ol>
-<div class="etq">EJEMPLO DE EJECUCIÓN</div>
-<pre class="consola">{esc(p['ejemplo'])}</pre>
-</div>""" for p in programas)
-    return pagina(f"Manual · Arma el programa · {curso}", f"""
-<div class="marca">ENLACE VR · PYTHON · {curso} · MANUAL DEL EQUIPO</div>
-<h1>Arma el programa</h1>
-<div class="aviso">El Operador les dice el <b>número de programa</b> y les lee las líneas de código que ve
-(con sangría o sin sangría). Ustedes deciden en qué <b>número de línea</b> va cada una, siguiendo el
-pseudocódigo. Cuidado: hay <b>líneas trampa</b> que se parecen pero no van. Sangría = 4 espacios.</div>
-<div class="rejilla">{tarjetas}</div>""")
+def tarjetas_codigo(funciones, titulo):
+    return "".join(f"""<div class="tarjeta"><h3><span class="num">{titulo(f)}</span>{f" <span class='tema'>· {esc(f['tema'])}</span>" if f.get('tema') else ''}</h3>
+<pre>{esc(f['codigo'])}</pre></div>""" for f in funciones)
 
 
-def manual_interprete(curso, datos):
-    ayuda = ("""<table><tr><th>Orden de las operaciones (primero → último)</th><th>Recuerden</th></tr>
-<tr><td class="mono">( )   →   **   →   *  /  //  %   →   +  -</td><td><span class="mono">/</span> siempre da decimal (10 / 5 = 2.0) ·
-<span class="mono">//</span> divide sin decimales · <span class="mono">%</span> es el residuo · una función sin
-<span class="mono">return</span> regresa <span class="mono">None</span></td></tr></table>""" if curso == "TC1037" else
-             """<table><tr><th>Recuerden</th></tr><tr><td><span class="mono">range(1, n)</span> llega hasta n − 1 ·
-<span class="mono">lista[-1]</span> es el último · <span class="mono">return</span> dentro de un ciclo termina la función ·
-<span class="mono">pop(i)</span> quita la posición i y recorre las demás</td></tr></table>""")
-    tarjetas = "".join(f"""<div class="tarjeta"><h3><span class="num">Función {f['id']}</span> <span class="tema">· {esc(f['tema'])}</span></h3>
-<pre>{esc(f['codigo'])}</pre></div>""" for f in datos["funciones"])
-    nota_math = "<p class='pie'>Todas las funciones tienen <span class='mono'>import math</span> al inicio del programa.</p>" if curso == "TC1037" else ""
-    return pagina(f"Manual · Intérprete humano · {curso}", f"""
-<div class="marca">ENLACE VR · PYTHON · {curso} · MANUAL DEL EQUIPO</div>
+def manual_interprete(datos):
+    return pagina("Manual · Intérprete humano", f"""
+<div class="marca">ENLACE VR · PYTHON · MANUAL DEL EQUIPO</div>
 <h1>Intérprete humano</h1>
-<div class="aviso">El Operador les lee una instrucción como <span class="mono">print(f3(600))</span>. Busquen la
-función, síganla a mano con esos valores y díganle <b>exactamente</b> qué imprime Python
-(<span class="mono">540.0</span> no es lo mismo que <span class="mono">540</span>). El Operador dispara a esa respuesta.</div>
-{ayuda}
-<div class="rejilla">{tarjetas}</div>{nota_math}""")
+<div class="aviso">El Operador les lee una instrucción como <span class="mono">print(f3(9, 2))</span>. Busquen la
+función 3, pongan los valores en los parámetros (el primero al primero) y díganle <b>exactamente</b> qué imprime Python.
+Ojo: <span class="mono">4.0</span> no es lo mismo que <span class="mono">4</span>. El Operador dispara a esa respuesta.</div>
+<table>
+<tr><th>Operador</th><th>Qué hace</th><th>Ejemplo</th></tr>
+<tr><td class="mono">//</td><td>divide y quita los decimales</td><td class="mono">17 // 5 = 3</td></tr>
+<tr><td class="mono">%</td><td>el residuo (lo que sobra)</td><td class="mono">17 % 5 = 2</td></tr>
+<tr><td class="mono">/</td><td>divide y siempre da decimal</td><td class="mono">8 / 2 = 4.0</td></tr>
+<tr><td class="mono">**</td><td>potencia</td><td class="mono">2 ** 3 = 8</td></tr>
+<tr><td>Orden</td><td colspan="2"><span class="mono">( )</span> → <span class="mono">**</span> → <span class="mono">*  /  //  %</span> (de izquierda a derecha) → <span class="mono">+  -</span></td></tr>
+</table>
+<div class="rejilla">{tarjetas_codigo(datos["funciones"], lambda f: f"Función {f['id']}")}</div>""")
 
 
-def manual_archivero(datos):
-    tarjetas = "".join(f"""<div class="tarjeta"><h3><span class="num">{esc(f['nombre'])}</span></h3>
-<pre>{esc(f['codigo'])}</pre></div>""" for f in datos["funciones"])
-    return pagina("Manual · El archivero · TC1038", f"""
-<div class="marca">ENLACE VR · PYTHON · TC1038 · MANUAL DEL EQUIPO</div>
-<h1>El archivero</h1>
-<div class="aviso">El Operador ve dos listas paralelas, <span class="mono">nombres</span> y <span class="mono">prom</span>,
-como cajas con su posición (0, 1, 2…). Ustedes tienen el código pero <b>no los datos</b>: pídanselos por posición
-("¿qué promedio hay en la posición 2?"). El Operador les lee la pregunta; ustedes siguen el código y le dicen
-la respuesta. No se usan <span class="mono">sum()</span>, <span class="mono">max()</span> ni <span class="mono">sort()</span>.</div>
-<div class="rejilla">{tarjetas}</div>
-<p class="pie">Igual que en el segundo examen (Control Escolar): las listas están alineadas, la posición i de
-<span class="mono">nombres</span> es el mismo alumno que la posición i de <span class="mono">prom</span>.</p>""")
+def manual_logica(datos):
+    return pagina("Manual · El cadenero", f"""
+<div class="marca">ENLACE VR · PYTHON · MANUAL DEL EQUIPO</div>
+<h1>El cadenero</h1>
+<div class="aviso">El Operador les dice el <b>número de función</b> y los valores, por ejemplo
+<span class="mono">entra(18, 1.60)</span>: parámetro 1 = 18, parámetro 2 = 1.60. Pongan cada valor en su parámetro
+(<span class="mono">edad = 18</span>, <span class="mono">estatura = 1.60</span>), resuelvan cada comparación y
+díganle qué <b>regresa</b> la función. El Operador elige esa respuesta.</div>
+<table>
+<tr><th>Operador</th><th>Da True cuando…</th><th>Ejemplo</th></tr>
+<tr><td class="mono">and</td><td>las <b>dos</b> partes son True</td><td class="mono">True and False → False</td></tr>
+<tr><td class="mono">or</td><td><b>al menos una</b> parte es True</td><td class="mono">True or False → True</td></tr>
+<tr><td class="mono">not</td><td>lo de adelante es False (lo voltea)</td><td class="mono">not True → False</td></tr>
+<tr><td>Orden</td><td colspan="2">primero las comparaciones (<span class="mono">&gt;  &lt;  &gt;=  &lt;=  ==  !=</span>), luego
+<span class="mono">not</span>, luego <span class="mono">and</span> y al final <span class="mono">or</span>. Lo que está entre ( ) va primero.</td></tr>
+<tr><td>Truco</td><td colspan="2">Escriban True o False arriba de cada comparación; luego júntenlas con and / or.</td></tr>
+</table>
+<div class="rejilla">{tarjetas_codigo(datos["funciones"], lambda f: f"Función {f['id']} · {f['nombre']}")}</div>""")
 
 
 def manual_calculadora(ejemplo):
-    pasos = "".join(f"<tr><td class='mono'>{i}</td><td class='mono'>{esc(texto_operacion(p))}</td><td class='mono'><b>{esc(p['valor'])}</b></td></tr>"
-                    for i, p in enumerate(pasos_canonicos(ejemplo["arbol"]), 1))
-    hoja = "".join(f"<tr><td class='mono' style='width:8mm'>{i}</td><td style='height:8.5mm'></td><td style='width:30mm'></td></tr>" for i in range(1, 9))
+    pasos = "".join(f"<tr><td class='mono'>{i}</td><td class='mono'>{esc(p)}</td></tr>" for i, p in enumerate(ejemplo["pasos"], 1))
+    hoja = "".join("<tr><td style='height:10mm'></td><td style='width:35mm'></td></tr>" for _ in range(6))
     return pagina("Manual · Calculadora humana", f"""
-<div class="marca">ENLACE VR · PYTHON · TC1037 · TC1038 · MANUAL DEL EQUIPO</div>
+<div class="marca">ENLACE VR · PYTHON · MANUAL DEL EQUIPO</div>
 <h1>Calculadora humana</h1>
-<div class="aviso">El Operador les dicta una expresión, por ejemplo <span class="mono">print(4 + 6 * 3 // 4 - 2 ** 3 / 8)</span>.
-Ustedes la escriben en la hoja de trabajo y le dicen <b>qué operación va primero</b> (él apunta a ese operador) y
-<b>cuánto da</b> (él lo escribe en el teclado). Paso a paso, hasta que quede un solo valor.
-Python es exacto: <span class="mono">7.0</span> no es lo mismo que <span class="mono">7</span>.</div>
+<div class="aviso">El del visor ve una expresión, por ejemplo <span class="mono">print(3 + 17 % 5 * 2)</span>, la
+resuelve y escribe <b>solo el resultado final</b> en el teclado. El equipo puede ayudar en voz alta (usen esta hoja).
+Cuando lleva <b>{ACIERTOS_POR_TURNO} correctas</b>, el visor dice <b>¡Siguiente!</b> y se lo pasan a otro del equipo.
+Python es exacto: <span class="mono">4.0</span> no es lo mismo que <span class="mono">4</span>.</div>
 <div class="rejilla">
 <div>
 <h2>¿Qué va primero?</h2>
@@ -544,95 +487,79 @@ Python es exacto: <span class="mono">7.0</span> no es lo mismo que <span class="
 <tr><td>2</td><td class="mono">**</td><td>potencia</td></tr>
 <tr><td>3</td><td class="mono">*  /  //  %</td><td>de izquierda a derecha</td></tr>
 <tr><td>4</td><td class="mono">+  -</td><td>de izquierda a derecha</td></tr>
-<tr><td>5</td><td class="mono">&gt;  &lt;  &gt;=  &lt;=  ==  !=</td><td>al final; dan True o False</td></tr>
 </table>
-<p class="pie">Si dos operaciones no dependen una de la otra, pueden ir en cualquier orden: el visor acepta cualquier
-operación que ya tenga sus dos números listos.</p>
 <h2>¿Entero o decimal?</h2>
 <table>
-<tr><td class="mono">/</td><td>siempre da decimal: <span class="mono">8 / 8 = 1.0</span></td></tr>
-<tr><td class="mono">//</td><td>divide y quita los decimales: <span class="mono">18 // 4 = 4</span></td></tr>
-<tr><td class="mono">%</td><td>el residuo: <span class="mono">7 % 2 = 1</span></td></tr>
-<tr><td class="mono">**</td><td>potencia: <span class="mono">2 ** 3 = 8</span></td></tr>
-<tr><td>mezcla</td><td>entero con decimal da decimal: <span class="mono">8 - 1.0 = 7.0</span></td></tr>
+<tr><td class="mono">/</td><td>siempre da decimal: <span class="mono">8 / 2 = 4.0</span></td></tr>
+<tr><td class="mono">//</td><td>divide y quita los decimales: <span class="mono">17 // 5 = 3</span></td></tr>
+<tr><td class="mono">%</td><td>el residuo: <span class="mono">17 % 5 = 2</span></td></tr>
+<tr><td class="mono">**</td><td>potencia: <span class="mono">3 ** 2 = 9</span></td></tr>
+<tr><td>mezcla</td><td>entero con decimal da decimal: <span class="mono">1 + 4.0 = 5.0</span></td></tr>
 </table>
 </div>
 <div>
 <h2>Ejemplo resuelto</h2>
 <p class="mono">print({esc(ejemplo['expresion'])})</p>
-<table><tr><th>Paso</th><th>Operación</th><th>Da</th></tr>{pasos}</table>
+<table><tr><th>Paso</th><th>Operación</th></tr>{pasos}</table>
 <p>Imprime: <span class="mono"><b>{esc(ejemplo['final'])}</b></span></p>
 </div>
 </div>
 <h2>Hoja de trabajo</h2>
-<p>Expresión: _______________________________________________________________</p>
-<table><tr><th>Paso</th><th>Operación</th><th>Da</th></tr>{hoja}</table>""")
+<table><tr><th>Expresión y pasos</th><th>Resultado</th></tr>{hoja}</table>""")
 
 
-def manual_maquinas(datos):
-    tarjetas = "".join(f"""<div class="tarjeta"><h3><span class="num">Máquina {i}</span> · <span class="mono">{esc(f['nombre'])}</span></h3>
-<pre>{esc(f['codigo'])}</pre></div>""" for i, f in enumerate(datos["funciones"], 1))
-    hoja = "".join("<tr><td style='height:9mm'></td><td></td><td></td><td></td></tr>" for _ in range(5))
-    return pagina("Manual · La máquina de funciones", f"""
-<div class="marca">ENLACE VR · PYTHON · TC1037 · MANUAL DEL EQUIPO</div>
-<h1>La máquina de funciones</h1>
-<div class="aviso">El Operador les dicta un programa corto, por ejemplo <span class="mono">a = area(3, 4)</span> y
-<span class="mono">print("Área:", a)</span>. Busquen la función aquí y díganle, en orden:
-<b>1)</b> qué valor recibe cada parámetro, <b>2)</b> qué regresa la función y <b>3)</b> qué aparece en la pantalla.</div>
+def manual_listas(datos):
+    return pagina("Manual · El archivero", f"""
+<div class="marca">ENLACE VR · PYTHON · MANUAL DEL EQUIPO</div>
+<h1>El archivero</h1>
+<div class="aviso">El Operador ve dos listas como cajas (por ejemplo <span class="mono">nombres</span> y
+<span class="mono">edades</span>) y les lee una llamada, por ejemplo <span class="mono">f3(nombres)</span>. Busquen la función:
+<span class="mono">lista1</span> es la lista que mandaron (aquí, <span class="mono">nombres</span>). Díganle <b>qué caja</b>
+regresa la función ("el último de nombres", "la posición 2 de edades") y él la toca.</div>
 <table>
-<tr><th>Recuerden</th></tr>
-<tr><td>Los valores entran a los parámetros <b>en orden</b>: el primero al primero. El nombre de la variable no importa:
-en <span class="mono">resta(b, a)</span> el parámetro <span class="mono">a</span> recibe el valor de <span class="mono">b</span>.</td></tr>
-<tr><td>Antes de llamar, Python calcula lo que está entre paréntesis: <span class="mono">es_par(n + 1)</span> con
-<span class="mono">n = 7</span> manda un <span class="mono">8</span>.</td></tr>
-<tr><td><span class="mono">return</span> regresa un valor a quien llamó. <span class="mono">print</span> solo lo muestra en la pantalla.
-Si la función no tiene <span class="mono">return</span>, regresa <span class="mono">None</span>.</td></tr>
-<tr><td>Lo que regresa se dice como valor de Python: los textos van entre comillas (<span class="mono">'Aprobado'</span>), los decimales con punto (<span class="mono">9.0</span>).</td></tr>
+<tr><th>Recuerden</th><th>Ejemplo con lista = ["Ana", "Luis", "Eva", "Omar", "Zoe"]</th></tr>
+<tr><td>La primera posición es la <b>0</b></td><td class="mono">lista[0] → "Ana" · lista[2] → "Eva"</td></tr>
+<tr><td>Los negativos cuentan desde el final</td><td class="mono">lista[-1] → "Zoe" · lista[-2] → "Omar"</td></tr>
+<tr><td><span class="mono">len</span> es cuántos elementos hay</td><td class="mono">len(lista) → 5 · lista[len(lista) - 1] → "Zoe"</td></tr>
+<tr><td><span class="mono">index</span> dice en qué posición está</td><td class="mono">lista.index("Eva") → 2</td></tr>
+<tr><td>Los valores entran <b>en orden</b></td><td>en <span class="mono">f10(edades, nombres)</span>: <span class="mono">lista1</span> es edades y <span class="mono">lista2</span> es nombres</td></tr>
 </table>
-<div class="rejilla">{tarjetas}</div>
-<h2>Hoja de trabajo</h2>
-<table><tr><th>Llamada</th><th>Cada parámetro recibe</th><th>Regresa</th><th>En la pantalla</th></tr>{hoja}</table>""")
+<div class="rejilla">{tarjetas_codigo(datos["funciones"], lambda f: f"Función {f['id']}")}</div>""")
 
 
 INSTRUCTIVOS = {
-    "programa": ("Arma el programa", "TC1037 y TC1038", "Orden de un programa, sangría, EPS, if/else, funciones (TC1037); ciclos y listas (TC1038).",
-                 ["El Operador dice el <b>número de programa</b>, voltea, toma una línea de código y la <b>lee en voz alta</b> (con o sin sangría).",
-                  "El equipo busca el programa en su manual, sigue el pseudocódigo y dice en qué <b>número de línea</b> va.",
-                  "El Operador apunta a ese número. Si es la línea correcta, se coloca (+1). Las líneas trampa no van en ningún lado."]),
-    "interprete": ("Intérprete humano", "TC1037 y TC1038", "Evaluar expresiones, return contra print, if/elif/else (TC1037); range, while, listas, ciclos anidados (TC1038).",
-                   ["El Operador lee la instrucción, por ejemplo <span class='mono'>print(f3(600))</span>.",
-                    "El equipo busca la función 3, la sigue a mano y dice exactamente qué imprime Python.",
-                    "El Operador dispara a la puerta con esa respuesta. Al acertar, el visor muestra el código de la función."]),
-    "calculadora": ("Calculadora humana", "TC1037 y TC1038",
-                    "Precedencia de operadores, / contra //, %, **, entero contra decimal y comparaciones (como la evaluación de expresiones del examen).",
-                    ["El Operador dicta la expresión, por ejemplo <span class='mono'>print(4 + 6 * 3 // 4 - 2 ** 3 / 8)</span>, y el equipo la escribe en su hoja.",
-                     "El equipo dice qué operación va primero; el Operador apunta a ese operador. Luego la calculan a mano y el Operador escribe cuánto da.",
-                     "La expresión se reduce hasta un solo valor. +1 por cada paso bien hecho. Ojo: <span class='mono'>7.0</span> no es <span class='mono'>7</span>."]),
-    "maquinas": ("La máquina de funciones", "TC1037",
-                 "Llamar una función: qué valores recibe cada parámetro (en orden), qué regresa con return, qué muestra con print y por qué una función sin return regresa None.",
-                 ["El Operador dicta el programa (por ejemplo <span class='mono'>a = area(3, 4)</span>). Ve la función como una máquina y unos cubos con valores.",
-                  "El equipo busca la función en el manual y dice qué valor va en cada parámetro; el Operador mete cada cubo en su lugar.",
-                  "Luego eligen qué regresa la función y qué aparece en la pantalla. +1 por cada paso. Ojo: print no es return."]),
-    "archivero": ("El archivero", "TC1038", "Listas paralelas, índices, recorrer con for, buscar, contar, el mayor sin max(), eliminar y agregar.",
-                  ["El Operador lee la pregunta (por ejemplo <span class='mono'>print(mejor(nombres, prom))</span>) y ve las listas como cajas.",
-                   "El equipo, con el código, le pide los datos por posición y sigue la función a mano.",
-                   "El Operador elige la respuesta. Al eliminar o agregar, las cajas se recorren: así se ve por qué las listas deben cambiar juntas."]),
+    "calculadora": ("Calculadora humana", "Precedencia de operadores, / contra //, % y **, entero contra decimal.",
+                    ["El del visor ve una expresión, por ejemplo <span class='mono'>print(3 + 17 % 5 * 2)</span>, y la resuelve. El equipo puede ayudar en voz alta.",
+                     "Escribe en el teclado <b>solo el resultado final</b> y presiona OK. Si se equivoca, la vuelve a intentar.",
+                     f"Con {ACIERTOS_POR_TURNO} correctas sale <b>¡Siguiente!</b>: el reloj se detiene y pasan el visor a otro del equipo."]),
+    "interprete": ("Intérprete humano", "Operadores //, %, /, ** y su orden; parámetros; if sencillos.",
+                   ["El Operador lee la instrucción, por ejemplo <span class='mono'>print(f3(9, 2))</span>.",
+                    "El equipo busca la función 3, la sigue a mano con esos valores y dice exactamente qué imprime Python.",
+                    "El Operador dispara a la puerta con esa respuesta. Después el visor muestra la función y la respuesta."]),
+    "logica": ("El cadenero", "and, or, not, comparaciones y parámetros.",
+               ["El Operador ve la llamada, por ejemplo <span class='mono'>entra(18, 1.60)</span>, y el valor de cada parámetro. Se los dice al equipo.",
+                "El equipo busca la función en su hoja, resuelve cada comparación (True o False) y las junta con and / or / not.",
+                "El Operador elige lo que le digan que regresa. Después el visor muestra cada comparación resuelta."]),
+    "listas": ("El archivero", "Listas: posiciones desde 0, negativos, len, index y parámetros.",
+               ["El Operador ve dos listas como cajas y lee la llamada, por ejemplo <span class='mono'>f3(nombres)</span>.",
+                "El equipo busca la función 3 y le dice qué caja regresa (\"el último de nombres\").",
+                "El Operador toca esa caja. Después el visor muestra la función y la posición que regresa."]),
 }
 
 
 def instructivo(clave):
-    titulo, cursos, temas, pasos = INSTRUCTIVOS[clave]
+    titulo, temas, pasos = INSTRUCTIVOS[clave]
     cajas = "".join(f"<div class='paso-grande'><b>{i}</b>{p}</div>" for i, p in enumerate(pasos, 1))
     return pagina(f"Instructivo · {titulo}", f"""
 <div class="marca">ENLACE VR · PYTHON · INSTRUCTIVO DEL PROFESOR</div>
 <h1>{titulo}</h1>
-<p class="sub">{cursos} · Temas: {temas}</p>
+<p class="sub">Temas: {temas}</p>
 <h2>Cómo se juega</h2>
 <div class="tres">{cajas}</div>
 <h2>Antes de empezar (5 min)</h2>
 <ol>
-<li>En cada visor abre el sitio y en el menú elige el <b>equipo</b> (1 a 8) y el <b>curso</b> (TC1037 o TC1038).</li>
-<li>Imprime para cada equipo el <b>manual de su curso</b> y la hoja de puntajes (página Cómo empezar).</li>
+<li>En cada visor abre el sitio y en el menú elige el <b>equipo</b> (1 a 8).</li>
+<li>Imprime para cada equipo el <b>manual del juego</b> y la hoja de puntajes (página Cómo empezar).</li>
 <li>Equipos de 4: uno con el visor (Operador) y tres con el manual. Cambian de Operador en cada ronda.</li>
 </ol>
 <h2>Reglas</h2>
@@ -643,8 +570,8 @@ def instructivo(clave):
 <tr><td><b>Seguridad</b></td><td>Se juega sentado; correa del control en la muñeca; el visor se pasa con las dos manos.</td></tr>
 </table>
 <h2>Al terminar (5 min)</h2>
-<p>Pregunta: <i>"¿Qué línea o qué función les costó más y por qué?"</i> Pídeles que expliquen un error que cometieron:
-ahí está el aprendizaje. Si vas a medir, aplica el test de antes y después y la encuesta MEEGA+.</p>
+<p>Pregunta: <i>"¿Qué les costó más y por qué?"</i> Pídeles que expliquen un error que cometieron:
+ahí está el aprendizaje.</p>
 <p class="pie">Enlace VR · Python · Uno ve. El equipo sabe.</p>""")
 
 
@@ -672,29 +599,22 @@ def guardar(nombre, contenido, pdf=True):
 
 
 def main():
-    solo_datos = "--sin-pdf" in sys.argv
-    programas = comprobar_programas()
-    interprete = comprobar_funciones()
-    archivero = comprobar_archivero()
+    interprete = comprobar_interprete()
+    logica = generar_logica()
     expresiones = generar_expresiones()
-    print(f"comprobado: {len(expresiones)} expresiones de la calculadora (cada paso evaluado en Python)")
-    exportar("datos_calculadora.js", "CALCULADORA", expresiones)
-    maquinas = generar_maquinas()
-    print(f"comprobado: {len(maquinas['retos'])} llamadas de la máquina de funciones (corridas en Python)")
-    exportar("datos_maquinas.js", "MAQUINAS", maquinas)
-    total = sum(len(v["retos"]) for v in interprete.values())
-    print(f"comprobado: {sum(len(v) for v in programas.values())} programas, {total} preguntas del intérprete, archivero = Python")
-    exportar("datos_programa.js", "PROGRAMAS", programas)
+    listas = generar_listas()
+    print(f"comprobado en Python: {len(interprete['retos'])} preguntas del intérprete, {len(logica['retos'])} llamadas del cadenero, "
+          f"{len(expresiones)} expresiones, {sum(len(c['retos']) for c in listas['conjuntos'])} preguntas de listas")
     exportar("datos_interprete.js", "INTERPRETE", interprete)
-    exportar("datos_archivero.js", "ARCHIVERO", archivero)
-    pdf = not solo_datos
-    for curso in CURSOS:
-        guardar(f"Manual_Arma_el_programa_{curso}", manual_programa(curso, programas[curso]), pdf)
-        guardar(f"Manual_Interprete_humano_{curso}", manual_interprete(curso, interprete[curso]), pdf)
-    guardar("Manual_El_archivero_TC1038", manual_archivero(archivero), pdf)
-    guardar("Manual_Calculadora_humana", manual_calculadora(expresion(EJEMPLO_MANUAL, {}, 3)), pdf)
-    guardar("Manual_Maquina_de_funciones_TC1037", manual_maquinas(maquinas), pdf)
-    for clave, nombre in [("programa", "Arma_el_programa"), ("interprete", "Interprete_humano"), ("archivero", "El_archivero"), ("calculadora", "Calculadora_humana"), ("maquinas", "Maquina_de_funciones")]:
+    exportar("datos_logica.js", "LOGICA", logica)
+    exportar("datos_calculadora.js", "CALCULADORA", expresiones)
+    exportar("datos_listas.js", "LISTAS", listas)
+    pdf = "--sin-pdf" not in sys.argv
+    guardar("Manual_Calculadora_humana", manual_calculadora(expresion(EJEMPLO_MANUAL, {}, 2)), pdf)
+    guardar("Manual_Interprete_humano", manual_interprete(interprete), pdf)
+    guardar("Manual_El_cadenero", manual_logica(logica), pdf)
+    guardar("Manual_El_archivero", manual_listas(listas), pdf)
+    for clave, nombre in [("calculadora", "Calculadora_humana"), ("interprete", "Interprete_humano"), ("logica", "El_cadenero"), ("listas", "El_archivero")]:
         guardar(f"Instructivo_{nombre}", instructivo(clave), pdf)
 
 

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Enlace VR · Python</title>
-  <meta name="description" content="Enlace VR · Python: retos de programación en Python para jugar en equipo con realidad virtual (TC1037 y TC1038).">
+  <meta name="description" content="Enlace VR · Python: retos de programación en Python para jugar en equipo con realidad virtual.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -93,7 +93,7 @@
       <h1>enlace<span>vr</span> <small class="py">python</small></h1>
     </div>
     <p class="lema">Uno ve. El equipo sabe.</p>
-    <p class="sub">Retos de Python para jugar en equipo con realidad virtual: TC1037 (funciones y condicionales) y TC1038 (ciclos y listas). Un Operador usa el visor y ve el código; el equipo tiene el manual impreso. Solo hablando entre todos lo logran.</p>
+    <p class="sub">Retos de Python para jugar en equipo con realidad virtual: operadores, funciones, and / or / not y listas. Un Operador usa el visor; el equipo tiene el manual impreso. Solo hablando entre todos lo logran.</p>
     <div class="acciones">
       <button id="entrar-vr" class="boton principal" type="button">Entrar al menú en VR</button>
       <a class="boton" href="empezar.html">Cómo empezar y material</a>
@@ -105,17 +105,13 @@
         <div class="equipos" id="equipos"></div>
       </div>
       <div class="ajuste">
-        <span class="ajuste-titulo">Curso de este visor</span>
-        <div class="equipos" id="cursos"></div>
-      </div>
-      <div class="ajuste">
         <span class="ajuste-titulo">Música de fondo</span>
         <button id="musica" class="boton chico" type="button" aria-pressed="true">Sí</button>
       </div>
     </div>
-    <div class="titulo-seccion"><span>juegos · 3</span><span>rondas de 5 min</span></div>
+    <div class="titulo-seccion"><span>juegos · 4</span><span>rondas de 5 min</span></div>
     <div class="retos" id="juegos"></div>
-    <p class="nota">Para el profesor: antes de la clase elige arriba el <b>equipo</b> y el <b>curso</b> de cada visor. Los manuales del equipo (uno por curso), los instructivos de una hoja y la hoja de puntajes están en <a href="empezar.html">Cómo empezar</a>. Al final de cada ronda el visor da el puntaje y un <b>código</b>; verifícalos en el <a href="marcador.html">Marcador del profesor</a>. Se juega sentado y con la correa del control en la muñeca.</p>
+    <p class="nota">Para el profesor: antes de la clase elige arriba el <b>equipo</b> de cada visor. Los manuales del equipo, los instructivos de una hoja y la hoja de puntajes están en <a href="empezar.html">Cómo empezar</a>. Al final de cada ronda el visor da el puntaje y un <b>código</b>; verifícalos en el <a href="marcador.html">Marcador del profesor</a>. Se juega sentado y con la correa del control en la muñeca.</p>
   </div>
 
   <!-- en la computadora: regresar del menú 3D al menú web -->
@@ -145,26 +141,6 @@
     };
     pintarEquipos();
     document.addEventListener('enlace-equipo', pintarEquipos);
-    const cajaCursos = document.getElementById('cursos');
-    const pintarCursos = () => {
-      cajaCursos.innerHTML = '';
-      ['TC1037', 'TC1038'].forEach((c) => {
-        const b = document.createElement('button');
-        b.type = 'button';
-        b.className = 'boton chico';
-        b.textContent = c;
-        b.setAttribute('aria-pressed', String(curso.actual() === c));
-        b.addEventListener('click', () => {
-          curso.poner(c);
-          pintarCursos();
-          const menu3D = document.querySelector('[menu-juegos]').components['menu-juegos'];
-          if (menu3D) menu3D.botonesCurso.forEach((x) => x.setAttribute('boton', 'elegido', x.getAttribute('boton').valor === c));
-        });
-        cajaCursos.appendChild(b);
-      });
-    };
-    pintarCursos();
-    document.addEventListener('enlace-curso', pintarCursos);
     const botonMusica = document.getElementById('musica');
     const pintarMusica = () => {
       botonMusica.textContent = musica.encendida() ? 'Sí' : 'No';

@@ -1,0 +1,64 @@
+<!doctype html><html lang='es'><head><meta charset='utf-8'><title>Manual · El archivero</title><style>
+@page { size: letter; margin: 13mm; }
+* { box-sizing: border-box; }
+body { font-family: "Segoe UI", Arial, sans-serif; color: #15171a; font-size: 10.5pt; line-height: 1.4; margin: 0; }
+h1 { font-size: 21pt; margin: 0 0 1mm; color: #0B1F3A; }
+h2 { font-size: 13pt; margin: 5mm 0 2mm; color: #2F6FBF; }
+h3 { font-size: 11.5pt; margin: 0 0 1.5mm; color: #0B1F3A; }
+p { margin: 0 0 2mm; }
+ol, ul { margin: 0 0 2mm; padding-left: 6mm; }
+li { margin-bottom: 1mm; }
+.marca { display: inline-block; border: 1.5px solid #2F6FBF; color: #2F6FBF; border-radius: 4px; padding: 0 2mm; font-size: 8.5pt; font-weight: 600; letter-spacing: .5px; margin-bottom: 2mm; }
+.sub { color: #5b6270; margin-bottom: 4mm; }
+.aviso { border-left: 4px solid #2F6FBF; background: #EEF3FA; padding: 2.5mm 4mm; margin: 2mm 0 4mm; }
+.mono, pre, code { font-family: Consolas, "Courier New", monospace; }
+pre { margin: 0; white-space: pre; font-size: 10pt; line-height: 1.3; }
+.rejilla { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; }
+.tarjeta { border: 1.2px solid #c9ced6; border-radius: 6px; padding: 2mm 3.5mm; break-inside: avoid; }
+.tarjeta .num { color: #2F6FBF; font-weight: 700; }
+.tema { color: #8B95A7; font-size: 8.5pt; }
+table { border-collapse: collapse; width: 100%; margin: 1mm 0 3mm; }
+th, td { border: 1px solid #c9ced6; padding: 1.4mm 2.2mm; text-align: left; vertical-align: top; }
+th { background: #eef1f5; }
+.tres { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; }
+.paso-grande { border: 1.2px solid #c9ced6; border-radius: 6px; padding: 3mm; }
+.paso-grande b { display: block; color: #2F6FBF; font-size: 15pt; }
+.pie { color: #5b6270; font-size: 8.5pt; margin-top: 3mm; }
+</style></head><body>
+<div class="marca">ENLACE VR · PYTHON · MANUAL DEL EQUIPO</div>
+<h1>El archivero</h1>
+<div class="aviso">El Operador ve dos listas como cajas (por ejemplo <span class="mono">nombres</span> y
+<span class="mono">edades</span>) y les lee una llamada, por ejemplo <span class="mono">f3(nombres)</span>. Busquen la función:
+<span class="mono">lista1</span> es la lista que mandaron (aquí, <span class="mono">nombres</span>). Díganle <b>qué caja</b>
+regresa la función ("el último de nombres", "la posición 2 de edades") y él la toca.</div>
+<table>
+<tr><th>Recuerden</th><th>Ejemplo con lista = ["Ana", "Luis", "Eva", "Omar", "Zoe"]</th></tr>
+<tr><td>La primera posición es la <b>0</b></td><td class="mono">lista[0] → "Ana" · lista[2] → "Eva"</td></tr>
+<tr><td>Los negativos cuentan desde el final</td><td class="mono">lista[-1] → "Zoe" · lista[-2] → "Omar"</td></tr>
+<tr><td><span class="mono">len</span> es cuántos elementos hay</td><td class="mono">len(lista) → 5 · lista[len(lista) - 1] → "Zoe"</td></tr>
+<tr><td><span class="mono">index</span> dice en qué posición está</td><td class="mono">lista.index("Eva") → 2</td></tr>
+<tr><td>Los valores entran <b>en orden</b></td><td>en <span class="mono">f10(edades, nombres)</span>: <span class="mono">lista1</span> es edades y <span class="mono">lista2</span> es nombres</td></tr>
+</table>
+<div class="rejilla"><div class="tarjeta"><h3><span class="num">Función 1</span></h3>
+<pre>def f1(lista1):
+    return lista1[0]</pre></div><div class="tarjeta"><h3><span class="num">Función 2</span></h3>
+<pre>def f2(lista1):
+    return lista1[2]</pre></div><div class="tarjeta"><h3><span class="num">Función 3</span></h3>
+<pre>def f3(lista1):
+    return lista1[-1]</pre></div><div class="tarjeta"><h3><span class="num">Función 4</span></h3>
+<pre>def f4(lista1):
+    return lista1[-2]</pre></div><div class="tarjeta"><h3><span class="num">Función 5</span></h3>
+<pre>def f5(lista1):
+    return lista1[len(lista1) - 1]</pre></div><div class="tarjeta"><h3><span class="num">Función 6</span></h3>
+<pre>def f6(lista1):
+    return lista1[len(lista1) // 2]</pre></div><div class="tarjeta"><h3><span class="num">Función 7</span></h3>
+<pre>def f7(lista1, i):
+    return lista1[i]</pre></div><div class="tarjeta"><h3><span class="num">Función 8</span></h3>
+<pre>def f8(lista1, i):
+    return lista1[i - 1]</pre></div><div class="tarjeta"><h3><span class="num">Función 9</span></h3>
+<pre>def f9(lista1, i):
+    return lista1[-i]</pre></div><div class="tarjeta"><h3><span class="num">Función 10</span></h3>
+<pre>def f10(lista1, lista2):
+    return lista2[0]</pre></div><div class="tarjeta"><h3><span class="num">Función 11</span></h3>
+<pre>def f11(lista1, lista2, x):
+    return lista2[lista1.index(x)]</pre></div></div></body></html>

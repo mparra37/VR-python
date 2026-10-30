@@ -1,22 +1,19 @@
 # Enlace VR · Python
 
-Team VR games for two intro Python courses (TC1037 and TC1038). One player (the Operator) wears a
-Meta Quest headset and sees the code; the rest of the team holds a printed manual. They only win by
-talking. Built on the same engine as [Enlace VR](https://github.com/mparra37/ITC-VR-Games)
-(A-Frame 1.7, no build step).
+Team VR games for intro Python courses. One player (the Operator) wears a Meta Quest headset and sees
+the challenge; the rest of the team holds a printed manual. They only win by talking. Built on the same
+engine as [Enlace VR](https://github.com/mparra37/ITC-VR-Games) (A-Frame 1.7, no build step).
 
-| Game | Course | Operator sees | Team has |
-| --- | --- | --- | --- |
-| Arma el programa (Parsons puzzle) | TC1037, TC1038 | Shuffled code lines with distractors, numbered editor rows | Pseudocode and sample run |
-| Intérprete humano (code tracing) | TC1037, TC1038 | `print(f3(600))` and 4 answer doors | Source of 10 numbered functions |
-| El archivero (parallel lists) | TC1038 | `nombres` and `prom` as boxes that shift on delete/append | Grade-book functions |
-| La máquina de funciones (calls, return vs print) | TC1037 | The calling program; the function as a machine with one slot per parameter; value cubes | Source of 14 functions; they map arguments to parameters, then say what it returns and what is printed |
-| Calculadora humana (step-by-step evaluation) | TC1037, TC1038 | An expression on a board and a keypad | Precedence table; they pick the next operator and compute it by hand |
+| Game | Operator sees | Team has |
+| --- | --- | --- |
+| Calculadora humana (operators) | A simple expression and a keypad; types only the final result. After 2 correct answers the headset is passed on (clock paused) | Precedence table and a worksheet to help out loud |
+| Intérprete humano (code tracing) | `print(f3(9, 2))` and 4 answer doors | Source of 10 small functions (`//`, `%`, `/`, `**`, precedence) |
+| El cadenero (and / or / not) | Function number, each parameter's value and the call, e.g. `entra(18, 1.60)` | Source of 12 boolean functions; they say what it returns |
+| El archivero (lists) | Two lists as boxes and a call like `f3(nombres)` | Source of 11 list functions (`lista1[-1]`, `len`, `index`…); they say which box to touch |
 
-All content lives in `generador/bancos.py`. `python generador/generar.py` executes every program and
-function in Python to produce the correct answers and distractors (from buggy variants), cross-checks the
-JavaScript logic of El archivero against Python on 300 random cases, and writes `js/datos_*.js` plus the
-printable PDFs in `material/`.
+All content lives in `generador/bancos.py`. `python generador/generar.py` executes everything in Python
+(answers, distractors from buggy variants, per-comparison traces, expression steps, list lookups) and writes
+`js/datos_*.js` plus the printable PDFs in `material/`.
 
 Rounds are 5 minutes; each round ends with a checksummed 8-character code that the teacher verifies in
 `marcador.html` (optionally logged to Google Sheets via `apps_script/`). Tested in a desktop browser only.

@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Enlace VR Python · La máquina de funciones</title>
+  <title>Enlace VR Python · El cadenero</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
   <script src="js/config.js"></script>
   <script src="js/marcador.js"></script>
-  <script src="js/datos_maquinas.js"></script>
+  <script src="js/datos_logica.js"></script>
   <script src="js/comun.js"></script>
   <script src="js/menu.js"></script>
-  <script src="js/maquinas.js"></script>
+  <script src="js/cadenero.js"></script>
   <style>
     .ayuda-2d {
       position: fixed; left: 12px; bottom: 12px; z-index: 10;
@@ -39,10 +39,10 @@
       <a-entity laser-controls="hand: left" raycaster="objects: .clickable; far: 6; lineColor: #5AA9FF"></a-entity>
     </a-entity>
 
-    <!-- el juego: la máquina, los cubos con valores, la variable y la pantalla -->
-    <a-entity id="juego" maquina-funciones></a-entity>
+    <!-- el juego: pizarrón con la llamada, respuestas debajo y la consola -->
+    <a-entity id="juego" cadenero></a-entity>
   </a-scene>
 
-  <div class="ayuda-2d">Modo 2D: arrastra para mirar a la izquierda, haz clic en un cubo y luego en su parámetro de la máquina; después elige las respuestas en la consola (o teclas A, B, C, D). En el visor, toca "VR". · <a href="index.html">Menú</a></div>
+  <div class="ayuda-2d">Modo 2D: arrastra para mirar alrededor y haz clic en una respuesta (o teclas 1, 2, 3; T = True, F = False). En el visor, toca "VR". · <a href="index.html">Menú</a></div>
 </body>
 </html>

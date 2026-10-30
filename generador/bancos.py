@@ -1,400 +1,162 @@
-"""Bancos de ejercicios de Enlace VR · Python (TC1037 y TC1038).
+"""Bancos de ejercicios de Enlace VR · Python.
 
 Todo lo que el juego muestra como respuesta se calcula EJECUTANDO este código en generar.py:
-- Arma el programa: cada programa se corre con las entradas del ejemplo y su salida debe ser igual
-  al ejemplo que trae el manual.
 - Intérprete humano: cada pregunta es print(fN(args)); la respuesta correcta es lo que Python imprime
   y las respuestas falsas salen de correr versiones "con el error típico" de la misma función.
+- El cadenero: cada llamada se corre en Python; también se evalúa cada comparación de la condición
+  para explicar por qué da True o False.
+- Calculadora humana: cada expresión (y cada paso) se evalúa con Python.
+- El archivero: cada llamada se corre en Python con las listas del reto; la respuesta es la caja que
+  tiene el valor que regresa.
 """
 
 # ---------------------------------------------------------------------------
-# Arma el programa (rompecabezas de código).
-# "pasos" = pseudocódigo del manual del equipo (con sangría de 3 espacios por nivel).
-# "lineas" = el programa en orden; "trampas" = líneas que se parecen pero no van.
-# "entradas" = lo que se escribe en input() para el ejemplo; "salida" = lo que debe imprimir.
-# ---------------------------------------------------------------------------
-
-PROGRAMAS = {
-    "TC1037": [
-        {
-            "titulo": "Área de un rectángulo",
-            "descripcion": "Pide la base y la altura de un rectángulo y muestra su área.",
-            "pasos": ["Pide la base (decimal).", "Pide la altura (decimal).", "Calcula el área: base por altura.", "Muestra el área."],
-            "lineas": ['base = float(input("Base: "))', 'altura = float(input("Altura: "))', "area = base * altura", 'print("Área:", area)'],
-            "trampas": ["area = base + altura", 'print("Área:", base)'],
-            "entradas": ["4", "2.5"],
-            "salida": "Base: Altura: Área: 10.0",
-        },
-        {
-            "titulo": "Minutos a horas",
-            "descripcion": "Pide un total de minutos y lo muestra en horas y minutos.",
-            "pasos": ["Pide el total de minutos (entero).", "Las horas son el total dividido entre 60, sin decimales.", "Los minutos que sobran son el residuo entre 60.", "Muestra horas y minutos."],
-            "lineas": ['total = int(input("Minutos: "))', "horas = total // 60", "minutos = total % 60", 'print(horas, "h", minutos, "min")'],
-            "trampas": ["horas = total / 60", "minutos = total // 60"],
-            "entradas": ["135"],
-            "salida": "Minutos: 2 h 15 min",
-        },
-        {
-            "titulo": "Mesas para el salón",
-            "descripcion": "En cada mesa caben 4 alumnos. Pide cuántos alumnos hay y muestra cuántas mesas se necesitan.",
-            "pasos": ["Usa la biblioteca de matemáticas.", "Pide el número de alumnos (entero).", "Mesas: alumnos entre 4, redondeado hacia ARRIBA.", "Muestra las mesas."],
-            "lineas": ["import math", 'alumnos = int(input("Alumnos: "))', "mesas = math.ceil(alumnos / 4)", 'print("Mesas:", mesas)'],
-            "trampas": ["mesas = math.floor(alumnos / 4)", "mesas = alumnos // 4"],
-            "entradas": ["25"],
-            "salida": "Alumnos: Mesas: 7",
-        },
-        {
-            "titulo": "Descuento en la tienda",
-            "descripcion": "Si la compra es de $500 o más, tiene 10% de descuento. Muestra el total a pagar.",
-            "pasos": ["Pide el total de la compra (decimal).", "Si el total es 500 o más:", "   el total ahora es el 90% del total.", "Muestra el total a pagar (fuera del si)."],
-            "lineas": ['total = float(input("Total de la compra: "))', "if total >= 500:", "    total = total * 0.9", 'print("Total a pagar:", total)'],
-            "trampas": ["if total > 500:", '    print("Total a pagar:", total)', "    total = total * 0.1"],
-            "entradas": ["600"],
-            "salida": "Total de la compra: Total a pagar: 540.0",
-        },
-        {
-            "titulo": "Par o impar",
-            "descripcion": "Pide un número entero y dice si es par o impar.",
-            "pasos": ["Pide un número entero n.", "Si el residuo de n entre 2 es 0:", "   muestra Par.", "Si no:", "   muestra Impar."],
-            "lineas": ['n = int(input("Número: "))', "if n % 2 == 0:", '    print("Par")', "else:", '    print("Impar")'],
-            "trampas": ["if n // 2 == 0:", "if n % 2 = 0:", 'print("Par")'],
-            "entradas": ["7"],
-            "salida": "Número: Impar",
-        },
-        {
-            "titulo": "Promedio y aprobado",
-            "descripcion": "La función promedio(c1, c2, c3) regresa el promedio de tres calificaciones. Se aprueba con 70 o más.",
-            "pasos": ["Define la función promedio con c1, c2 y c3:", "   regresa la suma de las tres entre 3.", "Guarda en p el promedio de 80, 90 y 70.", "Muestra el promedio.", "Si p es 70 o más:", "   muestra Aprobado.", "Si no:", "   muestra Reprobado."],
-            "lineas": ["def promedio(c1, c2, c3):", "    return (c1 + c2 + c3) / 3", "p = promedio(80, 90, 70)", 'print("Promedio:", p)', "if p >= 70:", '    print("Aprobado")', "else:", '    print("Reprobado")'],
-            "trampas": ["    return c1 + c2 + c3 / 3", "    print((c1 + c2 + c3) / 3)"],
-            "entradas": [],
-            "salida": "Promedio: 80.0 Aprobado",
-        },
-        {
-            "titulo": "Compra válida",
-            "descripcion": "Pide el total. Si es negativo, avisa del error. Si es 500 o más, cobra con 10% de descuento. Si no, cobra completo.",
-            "pasos": ["Pide el total (decimal).", "Si el total es menor que 0:", "   muestra el error.", "Si no, pero si es 500 o más:", "   muestra el total con 10% de descuento.", "Si no:", "   muestra el total completo."],
-            "lineas": ['total = float(input("Total: "))', "if total < 0:", '    print("Error: no puede ser negativo")', "elif total >= 500:", '    print("Pagas:", total * 0.9)', "else:", '    print("Pagas:", total)'],
-            "trampas": ["if total >= 500:", '    print("Pagas:", total * 0.1)'],
-            "entradas": ["300"],
-            "salida": "Total: Pagas: 300.0",
-        },
-        {
-            "titulo": "Estacionamiento",
-            "descripcion": "La primera hora cuesta $20 y cada hora extra $15. La función tarifa(horas) regresa cuánto se paga.",
-            "pasos": ["Define la función tarifa con horas:", "   si las horas son 1 o menos:", "      regresa 20.", "   regresa 20 más 15 por cada hora extra.", "Pide las horas (entero).", "Muestra lo que se paga."],
-            "lineas": ["def tarifa(horas):", "    if horas <= 1:", "        return 20", "    return 20 + (horas - 1) * 15", 'h = int(input("Horas: "))', 'print("Pagas:", tarifa(h))'],
-            "trampas": ["    return 20 + horas * 15", "        print(20)"],
-            "entradas": ["3"],
-            "salida": "Horas: Pagas: 50",
-        },
-    ],
-    "TC1038": [
-        {
-            "titulo": "Suma de 1 a n",
-            "descripcion": "Pide n y muestra la suma 1 + 2 + … + n usando un ciclo for.",
-            "pasos": ["Pide n (entero).", "Empieza la suma en 0.", "Para cada i de 1 a n (incluido n):", "   suma i a la suma.", "Muestra la suma (fuera del ciclo)."],
-            "lineas": ['n = int(input("n: "))', "suma = 0", "for i in range(1, n + 1):", "    suma += i", 'print("Suma:", suma)'],
-            "trampas": ["for i in range(1, n):", '    print("Suma:", suma)'],
-            "entradas": ["5"],
-            "salida": "n: Suma: 15",
-        },
-        {
-            "titulo": "Cuenta regresiva",
-            "descripcion": "Pide un número y cuenta hacia atrás hasta 1 con un ciclo while. Al final muestra ¡Despegue!",
-            "pasos": ["Pide el número n (entero).", "Mientras n sea mayor que 0:", "   muestra n.", "   réstale 1 a n.", "Muestra ¡Despegue!"],
-            "lineas": ['n = int(input("Desde: "))', "while n > 0:", "    print(n)", "    n -= 1", 'print("¡Despegue!")'],
-            "trampas": ["while n >= 0:", "n -= 1"],
-            "entradas": ["3"],
-            "salida": "Desde: 3 2 1 ¡Despegue!",
-        },
-        {
-            "titulo": "Promedio del grupo",
-            "descripcion": "Calcula el promedio de una lista de promedios sin usar sum().",
-            "pasos": ["Crea la lista prom con 78.5, 91.0 y 66.5.", "Empieza el total en 0.", "Para cada p en prom:", "   súmale p al total.", "Muestra total entre el tamaño de la lista, con 2 decimales."],
-            "lineas": ["prom = [78.5, 91.0, 66.5]", "total = 0", "for p in prom:", "    total += p", "print(round(total / len(prom), 2))"],
-            "trampas": ["    total = p", "print(round(total / 2, 2))"],
-            "entradas": [],
-            "salida": "78.67",
-        },
-        {
-            "titulo": "Buscar alumno",
-            "descripcion": "La función buscar(nombres, x) regresa la posición de x en la lista, o -1 si no está.",
-            "pasos": ["Define la función buscar con nombres y x:", "   para cada posición i de la lista:", "      si el nombre en i es x:", "         regresa i.", "   después del ciclo, regresa -1.", "Muestra buscar de la lista Luis, Eva, Mar con Mar."],
-            "lineas": ["def buscar(nombres, x):", "    for i in range(len(nombres)):", "        if nombres[i] == x:", "            return i", "    return -1", 'print(buscar(["Luis", "Eva", "Mar"], "Mar"))'],
-            "trampas": ["        return -1", "            return x"],
-            "entradas": [],
-            "salida": "2",
-        },
-        {
-            "titulo": "Lista de aprobados",
-            "descripcion": "Con dos listas paralelas, arma una lista nueva con los nombres de quienes tienen 70 o más.",
-            "pasos": ["Crea la lista nombres: Luis, Eva, Mar.", "Crea la lista prom: 78.5, 91.0, 66.5.", "Empieza aprobados como lista vacía.", "Para cada posición i:", "   si el promedio en i es 70 o más:", "      agrega el NOMBRE en i a aprobados.", "Muestra aprobados y cuántos son."],
-            "lineas": ['nombres = ["Luis", "Eva", "Mar"]', "prom = [78.5, 91.0, 66.5]", "aprobados = []", "for i in range(len(prom)):", "    if prom[i] >= 70:", "        aprobados.append(nombres[i])", "print(aprobados, len(aprobados))"],
-            "trampas": ["        aprobados.append(prom[i])", "aprobados = 0"],
-            "entradas": [],
-            "salida": "['Luis', 'Eva'] 2",
-        },
-        {
-            "titulo": "Mejor promedio",
-            "descripcion": "Encuentra al alumno con el promedio más alto sin usar max(). Si hay empate, gana el primero.",
-            "pasos": ["Crea la lista nombres: Luis, Eva, Mar.", "Crea la lista prom: 78.5, 91.0, 66.5.", "El mejor empieza en la posición 0.", "Para cada posición i desde la 1:", "   si el promedio en i es MAYOR que el del mejor:", "      el mejor ahora es i.", "Muestra el nombre y el promedio del mejor."],
-            "lineas": ['nombres = ["Luis", "Eva", "Mar"]', "prom = [78.5, 91.0, 66.5]", "mejor = 0", "for i in range(1, len(prom)):", "    if prom[i] > prom[mejor]:", "        mejor = i", 'print(nombres[mejor], "con", prom[mejor])'],
-            "trampas": ["    if prom[i] >= prom[mejor]:", "        mejor = prom[i]"],
-            "entradas": [],
-            "salida": "Eva con 91.0",
-        },
-        {
-            "titulo": "Eliminar alumno",
-            "descripcion": "Quita a Eva de las dos listas paralelas para que sigan alineadas.",
-            "pasos": ["Crea la lista nombres: Luis, Eva, Mar.", "Crea la lista prom: 78.5, 91.0, 66.5.", "Busca la posición de Eva en nombres.", "Quita esa posición de nombres.", "Quita la MISMA posición de prom.", "Muestra las dos listas."],
-            "lineas": ['nombres = ["Luis", "Eva", "Mar"]', "prom = [78.5, 91.0, 66.5]", 'pos = nombres.index("Eva")', "nombres.pop(pos)", "prom.pop(pos)", "print(nombres, prom)"],
-            "trampas": ["prom.pop(0)", "nombres.remove(pos)"],
-            "entradas": [],
-            "salida": "['Luis', 'Mar'] [78.5, 66.5]",
-        },
-        {
-            "titulo": "Lugar en el grupo",
-            "descripcion": "El lugar de cada alumno es 1 más cuántos tienen un promedio mayor. Sin ordenar las listas (ciclo anidado).",
-            "pasos": ["Crea la lista nombres: Luis, Eva, Mar.", "Crea la lista prom: 78.5, 91.0, 66.5.", "Para cada alumno i:", "   su lugar empieza en 1.", "   para cada alumno j:", "      si el promedio de j es mayor que el de i:", "         súmale 1 al lugar.", "   muestra el nombre de i y su lugar."],
-            "lineas": ['nombres = ["Luis", "Eva", "Mar"]', "prom = [78.5, 91.0, 66.5]", "for i in range(len(prom)):", "    lugar = 1", "    for j in range(len(prom)):", "        if prom[j] > prom[i]:", "            lugar += 1", '    print(nombres[i], "- lugar", lugar)'],
-            "trampas": ["lugar = 1", "            lugar = lugar + j"],
-            "entradas": [],
-            "salida": "Luis - lugar 2 Eva - lugar 1 Mar - lugar 3",
-        },
-    ],
-}
-
-# ---------------------------------------------------------------------------
 # Intérprete humano: funciones numeradas del manual. "args" = cada llamada que puede salir.
+# Números chicos para hacer las cuentas en la cabeza; cada función practica un operador.
 # "errores" = la misma función con un error típico (de ahí salen las respuestas falsas).
 # ---------------------------------------------------------------------------
 
-FUNCIONES = {
-    "TC1037": [
-        {
-            "codigo": "def f1(a, b):\n    return a // b + a % b",
-            "args": ["9, 4", "17, 5", "10, 3", "23, 6", "15, 4"],
-            "errores": ["def f1(a, b):\n    return a / b + a % b", "def f1(a, b):\n    return a // (b + a) % b", "def f1(a, b):\n    return a % b + a % b"],
-            "tema": "// y %",
-        },
-        {
-            "codigo": "def f2(x):\n    return 2 + x * 3 ** 2 // 4",
-            "args": ["1", "2", "3", "4", "6"],
-            "errores": ["def f2(x):\n    return (2 + x) * 3 ** 2 // 4", "def f2(x):\n    return 2 + x * 3 * 2 // 4", "def f2(x):\n    return 2 + x * 3 ** 2 / 4"],
-            "tema": "precedencia",
-        },
-        {
-            "codigo": "def f3(total):\n    if total >= 500:\n        total = total * 0.9\n    return total",
-            "args": ["450", "650", "800", "120.0", "499"],
-            "errores": ["def f3(total):\n    if total > 500:\n        total = total * 0.9\n    return total", "def f3(total):\n    if total >= 500:\n        total = total * 0.1\n    return total", "def f3(total):\n    return total * 0.9"],
-            "tema": "if y operaciones",
-        },
-        {
-            "codigo": "def f4(x):\n    print(x * 2)",
-            "args": ["3", "5", "10"],
-            "errores": ["def f4(x):\n    return x * 2", "def f4(x):\n    print(x * 2)\n    return x * 2"],
-            "tema": "print contra return",
-        },
-        {
-            "codigo": 'def f5(x):\n    if x > 10:\n        return "A"\n    elif x > 5:\n        return "B"\n    else:\n        return "C"',
-            "args": ["3", "6", "10", "11", "20"],
-            "errores": ['def f5(x):\n    if x > 5:\n        return "B"\n    elif x > 10:\n        return "A"\n    else:\n        return "C"', 'def f5(x):\n    if x >= 10:\n        return "A"\n    elif x >= 5:\n        return "B"\n    else:\n        return "C"'],
-            "tema": "if, elif, else",
-        },
-        {
-            "codigo": 'def f6(edad, permiso):\n    if edad >= 18 or permiso:\n        return "Pasa"\n    return "No pasa"',
-            "args": ["16, True", "15, False", "18, False", "20, True"],
-            "errores": ['def f6(edad, permiso):\n    if edad >= 18 and permiso:\n        return "Pasa"\n    return "No pasa"', 'def f6(edad, permiso):\n    if edad > 18 or permiso:\n        return "Pasa"\n    return "No pasa"'],
-            "tema": "or y and",
-        },
-        {
-            "codigo": "def f7(alumnos):\n    return math.ceil(alumnos / 4)",
-            "args": ["25", "9", "12", "30", "7"],
-            "errores": ["def f7(alumnos):\n    return math.floor(alumnos / 4)", "def f7(alumnos):\n    return alumnos / 4", "def f7(alumnos):\n    return round(alumnos / 4)"],
-            "tema": "math.ceil",
-        },
-        {
-            "codigo": "def doble(x):\n    return x * 2\n\ndef f8(x):\n    return doble(x) + 1",
-            "args": ["4", "5", "10", "0"],
-            "errores": ["def doble(x):\n    return x * 2\n\ndef f8(x):\n    return doble(x + 1)", "def doble(x):\n    return x * 2\n\ndef f8(x):\n    return x + 1", "def doble(x):\n    return x * 2\n\ndef f8(x):\n    return doble(doble(x))"],
-            "tema": "una función que llama a otra",
-        },
-        {
-            "codigo": "def f9(c1, c2, c3):\n    return round((c1 + c2 + c3) / 3, 1)",
-            "args": ["80, 90, 70", "60, 65, 71", "100, 95, 97", "70, 70, 71"],
-            "errores": ["def f9(c1, c2, c3):\n    return round(c1 + c2 + c3 / 3, 1)", "def f9(c1, c2, c3):\n    return (c1 + c2 + c3) // 3", "def f9(c1, c2, c3):\n    return round((c1 + c2 + c3) / 3)"],
-            "tema": "promedio y round",
-        },
-        {
-            "codigo": "def f10(horas):\n    if horas <= 1:\n        return 20\n    return 20 + (horas - 1) * 15",
-            "args": ["1", "2", "3", "5", "0"],
-            "errores": ["def f10(horas):\n    if horas <= 1:\n        return 20\n    return 20 + horas * 15", "def f10(horas):\n    return horas * 15", "def f10(horas):\n    if horas < 1:\n        return 20\n    return 20 + (horas - 1) * 15"],
-            "tema": "return dentro de if",
-        },
-    ],
-    "TC1038": [
-        {
-            "codigo": "def f1(n):\n    total = 0\n    for i in range(1, n):\n        total += i\n    return total",
-            "args": ["4", "6", "7", "10"],
-            "errores": ["def f1(n):\n    total = 0\n    for i in range(1, n + 1):\n        total += i\n    return total", "def f1(n):\n    total = 0\n    for i in range(n):\n        total += 1\n    return total"],
-            "tema": "range y acumulador",
-        },
-        {
-            "codigo": "def f2(n):\n    while n < 20:\n        n = n * 3\n    return n",
-            "args": ["2", "4", "5", "7", "20"],
-            "errores": ["def f2(n):\n    while n <= 20:\n        n = n * 3\n    return n", "def f2(n):\n    if n < 20:\n        n = n * 3\n    return n"],
-            "tema": "while",
-        },
-        {
-            "codigo": "def f3(nums):\n    return nums[1] + nums[-1]",
-            "args": ["[3, 9, 12, 6]", "[1, 2, 3]", "[10, 20, 30, 40, 50]", "[5, 7]"],
-            "errores": ["def f3(nums):\n    return nums[0] + nums[-1]", "def f3(nums):\n    return nums[1] + nums[len(nums) - 2]", "def f3(nums):\n    return nums[2] + nums[-1]"],
-            "tema": "índices y nums[-1]",
-        },
-        {
-            "codigo": "def f4(prom):\n    cuenta = 0\n    for p in prom:\n        if p >= 70:\n            cuenta += 1\n    return cuenta",
-            "args": ["[88.5, 61.0, 79.5]", "[70, 69.5, 100]", "[50, 60]", "[70, 70, 70, 71]"],
-            "errores": ["def f4(prom):\n    cuenta = 0\n    for p in prom:\n        if p > 70:\n            cuenta += 1\n    return cuenta", "def f4(prom):\n    cuenta = 0\n    for p in prom:\n        if p < 70:\n            cuenta += 1\n    return cuenta"],
-            "tema": "contar con if",
-        },
-        {
-            "codigo": "def f5(nombres, x):\n    for i in range(len(nombres)):\n        if nombres[i] == x:\n            return i\n    return -1",
-            "args": ['["Eva", "Luis", "Eva"], "Eva"', '["Ana", "Omar", "Luis"], "Luis"', '["Ana", "Omar"], "Pedro"', '["Eva", "Ana", "Luis", "Ana"], "Ana"'],
-            "errores": ["def f5(nombres, x):\n    pos = -1\n    for i in range(len(nombres)):\n        if nombres[i] == x:\n            pos = i\n    return pos", "def f5(nombres, x):\n    for i in range(len(nombres)):\n        if nombres[i] == x:\n            return i + 1\n    return 0"],
-            "tema": "buscar",
-        },
-        {
-            "codigo": "def f6(prom):\n    mejor = 0\n    for i in range(len(prom)):\n        if prom[i] > prom[mejor]:\n            mejor = i\n    return mejor",
-            "args": ["[85, 97, 97, 60]", "[88, 72, 88]", "[60, 75, 88]", "[99, 50]"],
-            "errores": ["def f6(prom):\n    mejor = 0\n    for i in range(len(prom)):\n        if prom[i] >= prom[mejor]:\n            mejor = i\n    return mejor", "def f6(prom):\n    mejor = 0\n    for i in range(len(prom)):\n        if prom[i] > prom[mejor]:\n            mejor = i\n    return prom[mejor]"],
-            "tema": "el mayor sin max()",
-        },
-        {
-            "codigo": "def f7(a, b):\n    cuenta = 0\n    for i in range(a):\n        for j in range(b):\n            cuenta += 1\n    return cuenta",
-            "args": ["3, 4", "2, 4", "4, 3", "1, 5"],
-            "errores": ["def f7(a, b):\n    cuenta = 0\n    for i in range(a):\n        cuenta += 1\n    for j in range(b):\n        cuenta += 1\n    return cuenta", "def f7(a, b):\n    cuenta = 0\n    for i in range(a + 1):\n        for j in range(b + 1):\n            cuenta += 1\n    return cuenta"],
-            "tema": "ciclo anidado",
-        },
-        {
-            "codigo": "def f8(prom, i):\n    lugar = 1\n    for p in prom:\n        if p > prom[i]:\n            lugar += 1\n    return lugar",
-            "args": ["[80, 65, 80], 1", "[80, 65, 80], 0", "[60, 75, 88, 75], 1", "[85, 92, 70], 2"],
-            "errores": ["def f8(prom, i):\n    lugar = 1\n    for p in prom:\n        if p >= prom[i]:\n            lugar += 1\n    return lugar", "def f8(prom, i):\n    lugar = 0\n    for p in prom:\n        if p > prom[i]:\n            lugar += 1\n    return lugar"],
-            "tema": "lugar en el grupo",
-        },
-        {
-            "codigo": "def f9(nombres, prom, x):\n    pos = nombres.index(x)\n    nombres.pop(pos)\n    prom.pop(pos)\n    return prom",
-            "args": ['["Luis", "Eva", "Mar"], [78.5, 91.0, 66.5], "Eva"', '["Luis", "Eva", "Mar"], [78.5, 91.0, 66.5], "Luis"', '["Eva", "Luis", "Mar", "Ivo"], [70, 80, 90, 60], "Mar"'],
-            "errores": ["def f9(nombres, prom, x):\n    pos = nombres.index(x)\n    nombres.pop(pos)\n    prom.pop(0)\n    return prom", "def f9(nombres, prom, x):\n    pos = nombres.index(x)\n    nombres.pop(pos)\n    return prom", "def f9(nombres, prom, x):\n    pos = nombres.index(x)\n    prom.pop(pos + 1)\n    return prom"],
-            "tema": "listas paralelas",
-        },
-        {
-            "codigo": "def f10(entradas):\n    veces = 0\n    cal = -1\n    while cal < 0 or cal > 100:\n        cal = entradas[veces]\n        veces += 1\n    return veces",
-            "args": ["[150, -2, 90]", "[85]", "[-1, 101, 200, 100]", "[0, 50]"],
-            "errores": ["def f10(entradas):\n    veces = 0\n    cal = -1\n    while cal < 0 and cal > 100:\n        cal = entradas[veces]\n        veces += 1\n    return veces", "def f10(entradas):\n    veces = 0\n    cal = -1\n    while cal <= 0 or cal >= 100:\n        cal = entradas[veces]\n        veces += 1\n    return veces"],
-            "tema": "validar con while",
-        },
-    ],
-}
+FUNCIONES = [
+    {
+        "codigo": "def f1(a, b):\n    return a // b",
+        "args": ["9, 2", "17, 5", "20, 6", "8, 3", "3, 4"],
+        "errores": ["def f1(a, b):\n    return a / b", "def f1(a, b):\n    return a % b"],
+        "tema": "// (división entera)",
+    },
+    {
+        "codigo": "def f2(a, b):\n    return a % b",
+        "args": ["9, 2", "17, 5", "20, 6", "8, 4", "3, 4"],
+        "errores": ["def f2(a, b):\n    return a // b", "def f2(a, b):\n    return a / b"],
+        "tema": "% (residuo)",
+    },
+    {
+        "codigo": "def f3(a, b):\n    return a / b",
+        "args": ["8, 2", "9, 2", "10, 4", "6, 3", "5, 2"],
+        "errores": ["def f3(a, b):\n    return a // b", "def f3(a, b):\n    return a % b"],
+        "tema": "/ (siempre da decimal)",
+    },
+    {
+        "codigo": "def f4(a, b):\n    return a ** b",
+        "args": ["2, 3", "3, 2", "10, 2", "5, 0", "1, 4"],
+        "errores": ["def f4(a, b):\n    return a * b", "def f4(a, b):\n    return b ** a"],
+        "tema": "** (potencia)",
+    },
+    {
+        "codigo": "def f5(x):\n    return 2 + x * 3",
+        "args": ["1", "2", "4", "10", "0"],
+        "errores": ["def f5(x):\n    return (2 + x) * 3", "def f5(x):\n    return 2 * x + 3"],
+        "tema": "primero * y luego +",
+    },
+    {
+        "codigo": "def f6(n):\n    return n // 10 + n % 10",
+        "args": ["25", "47", "90", "13", "8"],
+        "errores": ["def f6(n):\n    return n / 10 + n % 10", "def f6(n):\n    return n % 10", "def f6(n):\n    return n // 10"],
+        "tema": "// y % juntos",
+    },
+    {
+        "codigo": "def f7(a, b):\n    return a // b * b",
+        "args": ["17, 5", "10, 3", "9, 2", "12, 4", "7, 10"],
+        "errores": ["def f7(a, b):\n    return a // (b * b)", "def f7(a, b):\n    return a / b * b", "def f7(a, b):\n    return a % b * b"],
+        "tema": "de izquierda a derecha",
+    },
+    {
+        "codigo": "def f8(x):\n    return 10 - x % 3",
+        "args": ["7", "9", "5", "4", "2"],
+        "errores": ["def f8(x):\n    return (10 - x) % 3", "def f8(x):\n    return 10 - x // 3"],
+        "tema": "% antes que -",
+    },
+    {
+        "codigo": 'def f9(n):\n    if n % 2 == 0:\n        return "par"\n    else:\n        return "impar"',
+        "args": ["8", "7", "10", "15", "0"],
+        "errores": ['def f9(n):\n    if n % 2 == 1:\n        return "par"\n    else:\n        return "impar"', 'def f9(n):\n    if n // 2 == 0:\n        return "par"\n    else:\n        return "impar"'],
+        "tema": "% 2 para saber si es par",
+    },
+    {
+        "codigo": "def f10(precio):\n    if precio >= 100:\n        return precio - 20\n    return precio",
+        "args": ["150", "100", "80", "99", "120"],
+        "errores": ["def f10(precio):\n    if precio > 100:\n        return precio - 20\n    return precio", "def f10(precio):\n    return precio - 20"],
+        "tema": "if y una resta",
+    },
+]
+
+# Llamadas que están en el test de antes y después (no deben salir en el juego).
+DEL_TEST_LLAMADAS = ["f1(7, 2)", "f3(500)", "f5(15)", "f6(17, True)", "f8(3)"]
 
 # ---------------------------------------------------------------------------
-# El archivero (TC1038): funciones de Control Escolar (como el segundo examen).
-# El visor elige los datos al azar en cada pregunta; generar.py comprueba que las respuestas del
-# visor (js/archivero.js) sean iguales a las de este código con 300 listas al azar.
+# El cadenero (and, or, not): el visor muestra los valores de los parámetros y la llamada;
+# el equipo tiene la función completa. "nivel": 1 = un and u or; 2 = not y parámetros True/False;
+# 3 = if/elif con varias condiciones.
 # ---------------------------------------------------------------------------
 
-ARCHIVERO = [
-    ("buscar", "def buscar(nombres, x):\n    for i in range(len(nombres)):\n        if nombres[i] == x:\n            return i\n    return -1"),
-    ("promedio_grupo", "def promedio_grupo(prom):\n    total = 0\n    for p in prom:\n        total += p\n    return round(total / len(prom), 2)"),
-    ("mejor", "def mejor(nombres, prom):\n    m = 0\n    for i in range(len(prom)):\n        if prom[i] > prom[m]:\n            m = i\n    return nombres[m]"),
-    ("aprobados", "def aprobados(nombres, prom):\n    lista = []\n    for i in range(len(prom)):\n        if prom[i] >= 70:\n            lista.append(nombres[i])\n    return len(lista)"),
-    ("reprobados", "def reprobados(nombres, prom):\n    lista = []\n    for i in range(len(prom)):\n        if prom[i] < 70:\n            lista.append(nombres[i])\n    return len(lista)"),
-    ("eliminar", "def eliminar(nombres, prom, x):\n    pos = buscar(nombres, x)\n    nombres.pop(pos)\n    prom.pop(pos)"),
-    ("lugar", "def lugar(prom, i):\n    l = 1\n    for p in prom:\n        if p > prom[i]:\n            l += 1\n    return l"),
-    ("agregar", "def agregar(nombres, prom, x, p):\n    nombres.append(x)\n    prom.append(p)\n    return len(nombres) - 1"),
+LOGICA = [
+    {"nivel": 1, "codigo": "def entra(edad, estatura):\n    if edad >= 18 and estatura > 1.50:\n        return True\n    else:\n        return False",
+     "args": ["18, 1.60", "17, 1.80", "25, 1.45", "16, 1.40", "30, 1.51"]},
+    {"nivel": 1, "codigo": "def descuento(edad):\n    return edad < 12 or edad >= 60",
+     "args": ["8", "35", "60", "12", "70"]},
+    {"nivel": 1, "codigo": "def en_rango(x):\n    return x >= 1 and x <= 10",
+     "args": ["5", "0", "10", "11", "1"]},
+    {"nivel": 1, "codigo": 'def es_finde(dia):\n    return dia == "sábado" or dia == "domingo"',
+     "args": ['"lunes"', '"domingo"', '"sábado"', '"viernes"']},
+    {"nivel": 2, "codigo": "def puede_jugar(tarea, castigado):\n    return tarea and not castigado",
+     "args": ["True, False", "True, True", "False, False", "False, True"]},
+    {"nivel": 2, "codigo": "def abierto(hora, festivo):\n    return hora >= 9 and hora < 18 and not festivo",
+     "args": ["10, False", "20, False", "12, True", "9, False", "18, False"]},
+    {"nivel": 2, "codigo": "def aprueba(cal, faltas):\n    return cal >= 70 and not faltas > 3",
+     "args": ["85, 2", "85, 5", "60, 0", "70, 3"]},
+    {"nivel": 2, "codigo": "def par_positivo(n):\n    return n % 2 == 0 and n > 0",
+     "args": ["4", "7", "-2", "0", "10"]},
+    {"nivel": 3, "codigo": 'def boleto(edad, estudiante):\n    if edad < 12 or estudiante:\n        return "Medio"\n    elif edad >= 60:\n        return "Gratis"\n    else:\n        return "Completo"',
+     "args": ["10, False", "20, True", "65, False", "65, True", "30, False"]},
+    {"nivel": 3, "codigo": 'def clima(temp, lluvia):\n    if lluvia and temp < 15:\n        return "Quédate"\n    elif lluvia or temp < 15:\n        return "Chamarra"\n    else:\n        return "Sal"',
+     "args": ["10, True", "10, False", "25, True", "25, False", "15, True"]},
+    {"nivel": 3, "codigo": "def acceso(edad, invitado, vip):\n    return (edad >= 18 and invitado) or vip",
+     "args": ["20, True, False", "16, True, False", "16, False, True", "20, False, False"]},
+    {"nivel": 3, "codigo": "def beca(prom, ingreso):\n    return prom >= 90 or (prom >= 80 and ingreso < 5000)",
+     "args": ["95, 9000", "85, 3000", "85, 7000", "75, 2000"]},
 ]
 
 # ---------------------------------------------------------------------------
-# Calculadora humana: expresiones para evaluar a mano, paso a paso.
-# Las del examen van tal cual; las demás las arma generar.py al azar con estas plantillas
-# (a, b, c, d = números; x, y, z = variables con su valor). Python las evalúa y las que dan
-# decimales largos o números enormes se descartan.
+# Calculadora humana: el del visor calcula TODO y escribe solo el resultado final (el equipo puede
+# ayudar en voz alta). Cuentas sencillas: generar.py arma las expresiones al azar con estas plantillas
+# (a = un número de 5 a 20; b, c, d = números de 2 a 6; x, y = variables). Python las evalúa y descarta
+# las que dan números grandes o decimales largos.
 # ---------------------------------------------------------------------------
 
-EXPRESIONES_FIJAS = [
-    {"nivel": 3, "variables": {}, "expresion": "4 + 6 * 3 // 4 - 2 ** 3 / 8"},
-    {"nivel": 3, "variables": {"x": 7, "y": 2}, "expresion": "x // y + x % y"},
-]
-# Ejemplo resuelto del manual (no es del examen ni del test de antes y después).
-EJEMPLO_MANUAL = "3 + 4 * 2 ** 2 // 5 - 6 / 3"
+# Ejemplo resuelto del manual.
+EJEMPLO_MANUAL = "3 + 17 % 5 * 2"
 # Las preguntas del test de antes y después NO deben salir en el juego (si no, el test ya no mide).
 DEL_TEST = ["7 // 2 + 7 % 2", "2 + 3 * 4 ** 2 // 8"]
-# Llamadas del Intérprete con los mismos valores que el test (tampoco deben salir).
-DEL_TEST_LLAMADAS = {
-    "TC1037": ["f1(7, 2)", "f3(500)", "f5(15)", "f6(17, True)", "f8(3)"],
-    "TC1038": ["f1(5)", "f2(1)", "f3([4, 8, 15, 16])", "f4([92.5, 64.5, 84.0])", 'f5(["Ana", "Omar", "Ana"], "Ana")',
-               "f6([80, 95, 95, 70])", "f7(3, 2)", "f8([90, 70, 90], 1)", "f10([120, -5, 85])"],
-}
 
 PLANTILLAS = {
-    1: ["a + b * c", "a * b - c", "a - b + c * d", "a * b / c", "a + b / c", "a / b * c", "a * b + c * d"],
-    2: ["a // b + a % b", "a + b ** 2 // c", "a % b * c", "a ** 2 - b * c", "a + b * c // d", "a * b % c + d", "a // b * c - d % b"],
-    3: ["(a + b) * c // d", "a + b * c - d ** 2 / e", "(a - b) ** 2 % c", "x // y + x % y", "x % y * (x - y)",
-        "x ** 2 // y - z", "a + b * c > d", "x % 2 == 0", "(x + y) / 2 >= z", "a * b // c == d % e"],
+    1: ["a // b", "a % b", "a / b", "b ** 2", "b ** 3", "a + b * c", "a - b * c"],
+    2: ["a // b + c", "a % b + c", "a % b * c", "a // b * c", "(a + b) // c", "a - b ** 2", "c + a / b", "(a - b) % c"],
+    3: ["a + b * c // d", "a % b + c ** 2", "(a + b) % c * d", "x // y + x % y", "x % y * 2", "a // b - c % d", "a / b + c * d"],
 }
 
 # ---------------------------------------------------------------------------
-# La máquina de funciones (TC1037): mandar datos a una función y ver qué regresa.
-# MAQUINAS = las funciones del manual (en este orden). Cada reto es un programa corto; "funcion" y
-# "ocurrencia" dicen qué llamada se ve como máquina (contando en el orden en que Python las ejecuta).
-# "destino" = a dónde va lo que regresa: una variable ("r"), el print, o se pierde ("nada").
-# generar.py corre cada programa en Python y registra qué recibió y qué regresó cada llamada.
+# El archivero (listas): el visor muestra dos listas como cajas; el equipo tiene estas funciones.
+# El Operador lee la llamada (por ejemplo f3(nombres)) y toca la caja que regresa la función.
 # ---------------------------------------------------------------------------
 
-MAQUINAS = [
-    ("doble", "def doble(x):\n    return x * 2"),
-    ("cuadrado", "def cuadrado(x):\n    return x ** 2"),
-    ("area", "def area(base, altura):\n    return base * altura"),
-    ("resta", "def resta(a, b):\n    return a - b"),
-    ("promedio", "def promedio(a, b, c):\n    return (a + b + c) / 3"),
-    ("es_par", "def es_par(n):\n    return n % 2 == 0"),
-    ("aprobado", 'def aprobado(cal):\n    if cal >= 70:\n        return "Aprobado"\n    return "Reprobado"'),
-    ("mayor", "def mayor(a, b):\n    if a > b:\n        return a\n    else:\n        return b"),
-    ("descuento", "def descuento(precio, porcentaje):\n    return precio - precio * porcentaje / 100"),
-    ("saluda", 'def saluda(nombre):\n    print("Hola", nombre)'),
-    ("imprime_area", 'def imprime_area(base, altura):\n    print("Área:", base * altura)'),
-    ("muestra_doble", "def muestra_doble(x):\n    print(x * 2)\n    return x * 2"),
-    ("envio", "def envio(precio):\n    if precio >= 500:\n        return 0\n    return 50"),
-    ("total", "def total(precio):\n    return precio + envio(precio)"),
+LISTAS_FUNCIONES = [
+    "def f1(lista1):\n    return lista1[0]",
+    "def f2(lista1):\n    return lista1[2]",
+    "def f3(lista1):\n    return lista1[-1]",
+    "def f4(lista1):\n    return lista1[-2]",
+    "def f5(lista1):\n    return lista1[len(lista1) - 1]",
+    "def f6(lista1):\n    return lista1[len(lista1) // 2]",
+    "def f7(lista1, i):\n    return lista1[i]",
+    "def f8(lista1, i):\n    return lista1[i - 1]",
+    "def f9(lista1, i):\n    return lista1[-i]",
+    "def f10(lista1, lista2):\n    return lista2[0]",
+    "def f11(lista1, lista2, x):\n    return lista2[lista1.index(x)]",
 ]
 
-LLAMADAS = [
-    # nivel 1: una función con return
-    {"nivel": 1, "programa": "r = doble(5)\nprint(r)", "funcion": "doble", "destino": "r"},
-    {"nivel": 1, "programa": 'a = area(3, 4)\nprint("Área:", a)', "funcion": "area", "destino": "a"},
-    {"nivel": 1, "programa": "print(cuadrado(7))", "funcion": "cuadrado", "destino": "print"},
-    {"nivel": 1, "programa": "c = aprobado(65)\nprint(c)", "funcion": "aprobado", "destino": "c"},
-    {"nivel": 1, "programa": "p = promedio(8, 9, 10)\nprint(p)", "funcion": "promedio", "destino": "p"},
-    {"nivel": 1, "programa": "print(es_par(14))", "funcion": "es_par", "destino": "print"},
-    {"nivel": 1, "programa": "m = mayor(4, 9)\nprint(m)", "funcion": "mayor", "destino": "m"},
-    {"nivel": 1, "programa": "d = descuento(200, 10)\nprint(d)", "funcion": "descuento", "destino": "d"},
-    # nivel 2: print contra return
-    {"nivel": 2, "programa": 'r = saluda("Ana")\nprint(r)', "funcion": "saluda", "destino": "r"},
-    {"nivel": 2, "programa": 'saluda("Luis")', "funcion": "saluda", "destino": "nada"},
-    {"nivel": 2, "programa": "x = muestra_doble(4)\nprint(x + 1)", "funcion": "muestra_doble", "destino": "x"},
-    {"nivel": 2, "programa": "imprime_area(2, 5)", "funcion": "imprime_area", "destino": "nada"},
-    {"nivel": 2, "programa": "r = imprime_area(3, 3)\nprint(r)", "funcion": "imprime_area", "destino": "r"},
-    {"nivel": 2, "programa": "print(doble(3) + doble(4))", "funcion": "doble", "ocurrencia": 2, "destino": "print"},
-    {"nivel": 2, "programa": "muestra_doble(6)\nprint(\"Listo\")", "funcion": "muestra_doble", "destino": "nada"},
-    {"nivel": 2, "programa": "c = cuadrado(4)\nprint(c, c + 1)", "funcion": "cuadrado", "destino": "c"},
-    # nivel 3: el orden de los argumentos, variables, expresiones y funciones que llaman a otras
-    {"nivel": 3, "programa": "a = 10\nb = 3\nprint(resta(b, a))", "funcion": "resta", "destino": "print"},
-    {"nivel": 3, "programa": "a = 10\nb = 3\nr = resta(a, b)\nprint(r)", "funcion": "resta", "destino": "r"},
-    {"nivel": 3, "programa": "x = 5\ny = mayor(x, 2)\nprint(y * 2)", "funcion": "mayor", "destino": "y"},
-    {"nivel": 3, "programa": "n = 7\nr = es_par(n + 1)\nprint(r)", "funcion": "es_par", "destino": "r"},
-    {"nivel": 3, "programa": "r = doble(doble(2))\nprint(r)", "funcion": "doble", "ocurrencia": 2, "destino": "r"},
-    {"nivel": 3, "programa": "print(total(300))", "funcion": "total", "destino": "print"},
-    {"nivel": 3, "programa": "precio = 600\nprint(total(precio))", "funcion": "total", "destino": "print"},
-    {"nivel": 3, "programa": "base = 2\naltura = 7\nprint(area(altura, base))", "funcion": "area", "destino": "print"},
-    {"nivel": 3, "programa": "cal = 80\nr = aprobado(cal - 15)\nprint(r)", "funcion": "aprobado", "destino": "r"},
-]
+# Datos para armar las listas (palabras cortas para que se lean bien en el visor).
+NOMBRES = ["Ana", "Luis", "Eva", "Omar", "Sofía", "Iván", "Zoe", "Leo", "Paty", "Raúl", "Nora", "Beto", "Mar", "Toño"]
+OTRAS_LISTAS = {
+    "edades": list(range(16, 26)),
+    "ciudades": ["León", "Colima", "Tepic", "Puebla", "Mérida", "Toluca", "Celaya", "Oaxaca"],
+    "colores": ["rojo", "azul", "verde", "gris", "negro", "rosa", "café", "blanco"],
+    "califs": [60, 65, 70, 75, 80, 85, 90, 95, 100],
+}
